@@ -1,4 +1,5 @@
 import * as Device from "expo-device";
+import { useEffect, useState } from "react";
 import { Platform, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -26,8 +27,47 @@ function getDevMenuHint() {
     </ThemedText>
   );
 }
+type JobApplication = {
+  id: number;
+  company: string;
+  position: string;
+  location: string;
+  status: string;
+};
 
 export default function HomeScreen() {
+  const [applications, setApplications] = useState<JobApplication[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const loadApplications = async () => {
+      try {
+        console.log("STARTAR FETCH");
+
+        const response = await fetch(
+          "http://192.168.0.4:5250/api/JobApplications",
+        );
+
+        console.log("STATUS:", response.status);
+
+        const data = await response.json();
+
+        console.log("DATA:", data);
+
+        setApplications(data);
+        setError("");
+      } catch (error) {
+        console.log("FETCH ERROR:", error);
+        setError("Kunde inte ansluta till backend");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadApplications();
+  }, []);
+
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
@@ -45,13 +85,29 @@ export default function HomeScreen() {
           Mina jobbansökningar
         </ThemedText>
 
-        <ThemedView style={styles.applicationCard}>
-          <ThemedText style={styles.company}>Consid</ThemedText>
+        {loading && <ThemedText>Laddar ansökningar...</ThemedText>}
 
-          <ThemedText style={styles.position}>Systemutvecklare .NET</ThemedText>
+        {error && <ThemedText>{error}</ThemedText>}
 
-          <ThemedText style={styles.location}>Linköping</ThemedText>
-        </ThemedView>
+        {applications.map((application) => (
+          <ThemedView key={application.id} style={styles.applicationCard}>
+            <ThemedText style={styles.company}>
+              {application.company}
+            </ThemedText>
+
+            <ThemedText style={styles.position}>
+              {application.position}
+            </ThemedText>
+
+            <ThemedText style={styles.location}>
+              {application.location}
+            </ThemedText>
+
+            <ThemedText style={styles.location}>
+              Status: {application.status}
+            </ThemedText>
+          </ThemedView>
+        ))}
 
         {Platform.OS === "web" && <WebBadge />}
       </SafeAreaView>

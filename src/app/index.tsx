@@ -1,32 +1,11 @@
-import * as Device from "expo-device";
+import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Platform, StyleSheet } from "react-native";
+import { Pressable, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import { AnimatedIcon } from "@/components/animated-icon";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
-import { WebBadge } from "@/components/web-badge";
-import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 
-function getDevMenuHint() {
-  if (Platform.OS === "web") {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === "android" ? "cmd+m (or ctrl+m)" : "cmd+d";
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
-}
 type JobApplication = {
   id: number;
   company: string;
@@ -36,29 +15,29 @@ type JobApplication = {
 };
 
 export default function HomeScreen() {
+  const router = useRouter();
+
   const [applications, setApplications] = useState<JobApplication[]>([]);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const loadApplications = async () => {
       try {
-        console.log("STARTAR FETCH");
-
         const response = await fetch(
           "http://192.168.0.4:5250/api/JobApplications",
         );
 
-        console.log("STATUS:", response.status);
+        if (!response.ok) {
+          throw new Error("Kunde inte hämta jobbansökningar");
+        }
 
         const data = await response.json();
 
-        console.log("DATA:", data);
-
         setApplications(data);
         setError("");
-      } catch (error) {
-        console.log("FETCH ERROR:", error);
+      } catch {
         setError("Kunde inte ansluta till backend");
       } finally {
         setLoading(false);
@@ -72,44 +51,55 @@ export default function HomeScreen() {
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
         <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
           <ThemedText type="title" style={styles.title}>
             JobTrack
           </ThemedText>
+
           <ThemedText type="subtitle">
             Håll koll på dina jobbansökningar
           </ThemedText>
         </ThemedView>
 
-        <ThemedText type="code" style={styles.code}>
+        <ThemedText style={styles.sectionTitle}>
           Mina jobbansökningar
         </ThemedText>
 
         {loading && <ThemedText>Laddar ansökningar...</ThemedText>}
 
-        {error && <ThemedText>{error}</ThemedText>}
+        {error && <ThemedText style={styles.errorText}>{error}</ThemedText>}
 
         {applications.map((application) => (
-          <ThemedView key={application.id} style={styles.applicationCard}>
-            <ThemedText style={styles.company}>
-              {application.company}
-            </ThemedText>
+          <Pressable
+            key={application.id}
+            style={styles.pressable}
+            onPress={() =>
+              router.push({
+                pathname: "/application/[id]",
+                params: {
+                  id: application.id.toString(),
+                },
+              })
+            }
+          >
+            <ThemedView style={styles.applicationCard}>
+              <ThemedText style={styles.company}>
+                {application.company}
+              </ThemedText>
 
-            <ThemedText style={styles.position}>
-              {application.position}
-            </ThemedText>
+              <ThemedText style={styles.position}>
+                {application.position}
+              </ThemedText>
 
-            <ThemedText style={styles.location}>
-              {application.location}
-            </ThemedText>
+              <ThemedText style={styles.location}>
+                {application.location}
+              </ThemedText>
 
-            <ThemedText style={styles.location}>
-              Status: {application.status}
-            </ThemedText>
-          </ThemedView>
+              <ThemedText style={styles.status}>
+                Status: {application.status}
+              </ThemedText>
+            </ThemedView>
+          </Pressable>
         ))}
-
-        {Platform.OS === "web" && <WebBadge />}
       </SafeAreaView>
     </ThemedView>
   );
@@ -118,39 +108,34 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
-    flexDirection: "row",
+    backgroundColor: "#f3f6fb",
   },
+
   safeArea: {
     flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: "center",
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
+    paddingHorizontal: 20,
+    paddingTop: 20,
   },
+
   heroSection: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
+    marginBottom: 28,
   },
+
   title: {
-    textAlign: "center",
+    color: "#1d2a44",
   },
-  code: {
-    textTransform: "uppercase",
+
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "700",
+    marginBottom: 16,
   },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: "stretch",
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
+
+  pressable: {
+    marginBottom: 14,
   },
+
   applicationCard: {
-    alignSelf: "stretch",
     backgroundColor: "#ffffff",
     padding: 18,
     borderRadius: 16,
@@ -174,5 +159,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: "#475569",
     marginTop: 14,
+  },
+
+  status: {
+    fontSize: 14,
+    color: "#475569",
+    marginTop: 8,
+  },
+
+  errorText: {
+    color: "#b91c1c",
+    marginBottom: 16,
   },
 });

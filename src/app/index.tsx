@@ -66,6 +66,16 @@ export default function HomeScreen() {
             </ThemedText>
           </ThemedView>
 
+          <ThemedView style={styles.sectionHeader}>
+            <ThemedText style={styles.sectionTitle}>
+              Mina jobbansökningar
+            </ThemedText>
+
+            <ThemedText style={styles.applicationCount}>
+              {applications.length}
+            </ThemedText>
+          </ThemedView>
+
           {loading && <ThemedText>Laddar ansökningar...</ThemedText>}
 
           {error && <ThemedText style={styles.errorText}>{error}</ThemedText>}
@@ -153,10 +163,27 @@ const styles = StyleSheet.create({
     lineHeight: 15,
   },
 
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 16,
+  },
+
   sectionTitle: {
     fontSize: 20,
+    lineHeight: 26,
     fontWeight: "700",
-    marginBottom: 16,
+    color: "#1d2a44",
+  },
+  applicationCount: {
+    backgroundColor: "#e8eef7",
+    color: "#1d2a44",
+    fontSize: 13,
+    fontWeight: "700",
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
   },
 
   pressable: {

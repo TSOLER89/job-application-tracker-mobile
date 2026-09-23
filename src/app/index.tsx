@@ -54,19 +54,17 @@ export default function HomeScreen() {
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
         >
-          <ThemedView style={styles.heroSection}>
-            <ThemedText type="title" style={styles.title}>
-              JobTrack
+          <ThemedView style={styles.heroCard}>
+            <ThemedText style={styles.eyebrow}>
+              JOB APPLICATION TRACKER
             </ThemedText>
 
-            <ThemedText type="subtitle">
-              Håll koll på dina jobbansökningar
+            <ThemedText style={styles.heroTitle}>JobTrack</ThemedText>
+
+            <ThemedText style={styles.heroSubtitle}>
+              Dina ansökningar. Samlade på ett ställe.
             </ThemedText>
           </ThemedView>
-
-          <ThemedText style={styles.sectionTitle}>
-            Mina jobbansökningar
-          </ThemedText>
 
           {loading && <ThemedText>Laddar ansökningar...</ThemedText>}
 
@@ -99,7 +97,7 @@ export default function HomeScreen() {
                 </ThemedText>
 
                 <ThemedText style={styles.status}>
-                  Status: {application.status}
+                  {application.status}
                 </ThemedText>
               </ThemedView>
             </Pressable>
@@ -126,12 +124,33 @@ const styles = StyleSheet.create({
     paddingBottom: 40,
   },
 
-  heroSection: {
+  heroCard: {
+    backgroundColor: "#1d2a44",
+    padding: 24,
+    borderRadius: 22,
     marginBottom: 28,
   },
 
-  title: {
-    color: "#1d2a44",
+  eyebrow: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 1,
+    color: "#b8c4d9",
+    marginBottom: 10,
+  },
+
+  heroTitle: {
+    fontSize: 34,
+    lineHeight: 42,
+    fontWeight: "700",
+    color: "#ffffff",
+  },
+
+  heroSubtitle: {
+    fontSize: 15,
+    color: "#d8e0ec",
+    marginTop: 8,
+    lineHeight: 15,
   },
 
   sectionTitle: {
@@ -171,9 +190,15 @@ const styles = StyleSheet.create({
   },
 
   status: {
-    fontSize: 14,
-    color: "#475569",
-    marginTop: 8,
+    alignSelf: "flex-start",
+    backgroundColor: "#e8eef7",
+    color: "#1d2a44",
+    fontSize: 13,
+    fontWeight: "600",
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginTop: 12,
   },
 
   errorText: {

@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type JobApplication = {
@@ -9,12 +9,16 @@ type JobApplication = {
   position: string;
   location: string;
   status: string;
+  dateApplied: string | null;
+  notes: string | null;
+  imageUrl: string | null;
 };
 
 export default function ApplicationDetailsScreen() {
   const { id } = useLocalSearchParams();
 
   const [application, setApplication] = useState<JobApplication | null>(null);
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -24,6 +28,10 @@ export default function ApplicationDetailsScreen() {
         const response = await fetch(
           "http://192.168.0.4:5250/api/JobApplications",
         );
+
+        if (!response.ok) {
+          throw new Error("Kunde inte hämta jobbanssökningar");
+        }
 
         const data: JobApplication[] = await response.json();
 
@@ -38,38 +46,58 @@ export default function ApplicationDetailsScreen() {
 
         setApplication(selectedApplication);
         setError("");
-      } catch (error) {
+      } catch {
         setError("Kunde inte ansluta till backend");
       } finally {
         setLoading(false);
       }
     };
+
     loadApplication();
   }, [id]);
 
   return (
     <SafeAreaView style={styles.container}>
-      {loading && <Text style={styles.message}>Laddar jobbansökan...</Text>}
+      <ScrollView contentContainerStyle={styles.content}>
+        {loading && <Text style={styles.message}>Laddar jobbansökan...</Text>}
 
-      {error && <Text style={styles.error}>{error}</Text>}
+        {error && <Text style={styles.error}>{error}</Text>}
 
-      {application && (
-        <View style={styles.card}>
-          <Text style={styles.company}>{application.company}</Text>
+        {application && (
+          <View style={styles.card}>
+            <Text style={styles.company}>{application.company}</Text>
 
-          <Text style={styles.position}>{application.position}</Text>
+            <Text style={styles.position}>{application.position}</Text>
 
-          <View style={styles.detail}>
-            <Text style={styles.label}>Plats</Text>
-            <Text style={styles.value}>{application.location}</Text>
+            <View style={styles.detail}>
+              <Text style={styles.label}>Plats</Text>
+
+              <Text style={styles.value}>{application.location}</Text>
+            </View>
+
+            <View style={styles.detail}>
+              <Text style={styles.label}>Status</Text>
+
+              <Text style={styles.value}>{application.status}</Text>
+            </View>
+
+            {application.dateApplied && (
+              <View style={styles.detail}>
+                <Text style={styles.label}>Ansökningsdatum</Text>
+                <Text style={styles.value}>{application.dateApplied}</Text>
+              </View>
+            )}
+
+            {application.notes && (
+              <View style={styles.detail}>
+                <Text style={styles.label}>Anteckningar</Text>
+
+                <Text style={styles.value}>{application.notes}</Text>
+              </View>
+            )}
           </View>
-
-          <View style={styles.detail}>
-            <Text style={styles.label}>Status</Text>
-            <Text style={styles.value}>{application.status}</Text>
-          </View>
-        </View>
-      )}
+        )}
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -78,6 +106,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f3f6fb",
+  },
+
+  content: {
     padding: 20,
   },
 

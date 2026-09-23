@@ -94,9 +94,15 @@ export default function HomeScreen() {
               }
             >
               <ThemedView style={styles.applicationCard}>
-                <ThemedText style={styles.company}>
-                  {application.company}
-                </ThemedText>
+                <ThemedView style={styles.cardHeader}>
+                  <ThemedText style={styles.company}>
+                    {application.company}
+                  </ThemedText>
+
+                  <ThemedText style={styles.statusBadge}>
+                    {application.status}
+                  </ThemedText>
+                </ThemedView>
 
                 <ThemedText style={styles.position}>
                   {application.position}
@@ -104,10 +110,6 @@ export default function HomeScreen() {
 
                 <ThemedText style={styles.location}>
                   {application.location}
-                </ThemedText>
-
-                <ThemedText style={styles.status}>
-                  {application.status}
                 </ThemedText>
               </ThemedView>
             </Pressable>
@@ -176,6 +178,7 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#1d2a44",
   },
+
   applicationCount: {
     backgroundColor: "#e8eef7",
     color: "#1d2a44",
@@ -193,9 +196,17 @@ const styles = StyleSheet.create({
   applicationCard: {
     backgroundColor: "#ffffff",
     padding: 18,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
+    borderRadius: 18, //gör kortet rundare
+
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.08,
+    shadowRadius: 8, // Add shadow radius for iOS
+
+    elevation: 3, // Add shadow for Android
   },
 
   company: {
@@ -216,16 +227,21 @@ const styles = StyleSheet.create({
     marginTop: 14,
   },
 
-  status: {
-    alignSelf: "flex-start",
+  cardHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+  },
+
+  statusBadge: {
     backgroundColor: "#e8eef7",
     color: "#1d2a44",
-    fontSize: 13,
-    fontWeight: "600",
+    fontSize: 12,
+    fontWeight: "700",
     paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingVertical: 5,
     borderRadius: 20,
-    marginTop: 12,
   },
 
   errorText: {

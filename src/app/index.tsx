@@ -1,6 +1,6 @@
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, StyleSheet } from "react-native";
+import { Pressable, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
@@ -50,56 +50,61 @@ export default function HomeScreen() {
   return (
     <ThemedView style={styles.container}>
       <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <ThemedText type="title" style={styles.title}>
-            JobTrack
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <ThemedView style={styles.heroSection}>
+            <ThemedText type="title" style={styles.title}>
+              JobTrack
+            </ThemedText>
+
+            <ThemedText type="subtitle">
+              Håll koll på dina jobbansökningar
+            </ThemedText>
+          </ThemedView>
+
+          <ThemedText style={styles.sectionTitle}>
+            Mina jobbansökningar
           </ThemedText>
 
-          <ThemedText type="subtitle">
-            Håll koll på dina jobbansökningar
-          </ThemedText>
-        </ThemedView>
+          {loading && <ThemedText>Laddar ansökningar...</ThemedText>}
 
-        <ThemedText style={styles.sectionTitle}>
-          Mina jobbansökningar
-        </ThemedText>
+          {error && <ThemedText style={styles.errorText}>{error}</ThemedText>}
 
-        {loading && <ThemedText>Laddar ansökningar...</ThemedText>}
+          {applications.map((application) => (
+            <Pressable
+              key={application.id}
+              style={styles.pressable}
+              onPress={() =>
+                router.push({
+                  pathname: "/application/[id]",
+                  params: {
+                    id: application.id.toString(),
+                  },
+                })
+              }
+            >
+              <ThemedView style={styles.applicationCard}>
+                <ThemedText style={styles.company}>
+                  {application.company}
+                </ThemedText>
 
-        {error && <ThemedText style={styles.errorText}>{error}</ThemedText>}
+                <ThemedText style={styles.position}>
+                  {application.position}
+                </ThemedText>
 
-        {applications.map((application) => (
-          <Pressable
-            key={application.id}
-            style={styles.pressable}
-            onPress={() =>
-              router.push({
-                pathname: "/application/[id]",
-                params: {
-                  id: application.id.toString(),
-                },
-              })
-            }
-          >
-            <ThemedView style={styles.applicationCard}>
-              <ThemedText style={styles.company}>
-                {application.company}
-              </ThemedText>
+                <ThemedText style={styles.location}>
+                  {application.location}
+                </ThemedText>
 
-              <ThemedText style={styles.position}>
-                {application.position}
-              </ThemedText>
-
-              <ThemedText style={styles.location}>
-                {application.location}
-              </ThemedText>
-
-              <ThemedText style={styles.status}>
-                Status: {application.status}
-              </ThemedText>
-            </ThemedView>
-          </Pressable>
-        ))}
+                <ThemedText style={styles.status}>
+                  Status: {application.status}
+                </ThemedText>
+              </ThemedView>
+            </Pressable>
+          ))}
+        </ScrollView>
       </SafeAreaView>
     </ThemedView>
   );
@@ -115,6 +120,10 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: 20,
     paddingTop: 20,
+  },
+
+  scrollContent: {
+    paddingBottom: 40,
   },
 
   heroSection: {

@@ -1,41 +1,131 @@
+import { useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-// Screen for displaying the details of a job application
-export default function ApplicationScreen() {
+type JobApplication = {
+  id: number;
+  company: string;
+  position: string;
+  location: string;
+  status: string;
+};
+
+export default function ApplicationDetailsScreen() {
+  const { id } = useLocalSearchParams();
+
+  const [application, setApplication] = useState<JobApplication | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    const loadApplication = async () => {
+      try {
+        const response = await fetch(
+          "http://192.168.0.4:5250/api/JobApplications",
+        );
+
+        const data: JobApplication[] = await response.json();
+
+        const selectedApplication = data.find(
+          (application) => application.id === Number(id),
+        );
+
+        if (!selectedApplication) {
+          setError("Jobbansökan hittades inte");
+          return;
+        }
+
+        setApplication(selectedApplication);
+        setError("");
+      } catch (error) {
+        setError("Kunde inte ansluta till backend");
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadApplication();
+  }, [id]);
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>Jobbansökan</Text>
+      {loading && <Text style={styles.message}>Laddar jobbansökan...</Text>}
 
-        <Text style={styles.text}>
-          Här kommer detaljerna för jobbansökan att visas.
-        </Text>
-      </View>
+      {error && <Text style={styles.error}>{error}</Text>}
+
+      {application && (
+        <View style={styles.card}>
+          <Text style={styles.company}>{application.company}</Text>
+
+          <Text style={styles.position}>{application.position}</Text>
+
+          <View style={styles.detail}>
+            <Text style={styles.label}>Plats</Text>
+            <Text style={styles.value}>{application.location}</Text>
+          </View>
+
+          <View style={styles.detail}>
+            <Text style={styles.label}>Status</Text>
+            <Text style={styles.value}>{application.status}</Text>
+          </View>
+        </View>
+      )}
     </SafeAreaView>
   );
 }
 
-// Styles for the application screen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f3f6fb",
     padding: 20,
   },
+
   card: {
     backgroundColor: "#ffffff",
-    padding: 20,
+    padding: 22,
     borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "#e5e7eb",
   },
-  title: {
-    fontSize: 24,
+
+  company: {
+    fontSize: 26,
     fontWeight: "700",
     color: "#1d2a44",
-    marginBottom: 12,
   },
-  text: {
+
+  position: {
+    fontSize: 17,
+    color: "#64748b",
+    marginTop: 6,
+    marginBottom: 24,
+  },
+
+  detail: {
+    marginBottom: 18,
+  },
+
+  label: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#94a3b8",
+    textTransform: "uppercase",
+  },
+
+  value: {
+    fontSize: 16,
+    color: "#334155",
+    marginTop: 5,
+  },
+
+  message: {
     fontSize: 16,
     color: "#475569",
+  },
+
+  error: {
+    fontSize: 16,
+    color: "#b91c1c",
   },
 });

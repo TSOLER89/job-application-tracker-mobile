@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type JobApplication = {
@@ -14,6 +14,8 @@ type JobApplication = {
   imageUrl: string | null;
 };
 
+const API_BASE_URL = "http://192.168.0.4:5250";
+
 export default function ApplicationDetailsScreen() {
   const { id } = useLocalSearchParams();
 
@@ -21,6 +23,10 @@ export default function ApplicationDetailsScreen() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const imageUrl = application?.imageUrl
+    ? `${API_BASE_URL}${application.imageUrl}`
+    : null;
 
   useEffect(() => {
     const loadApplication = async () => {
@@ -68,6 +74,10 @@ export default function ApplicationDetailsScreen() {
             <Text style={styles.company}>{application.company}</Text>
 
             <Text style={styles.position}>{application.position}</Text>
+
+            {imageUrl && (
+              <Image source={{ uri: imageUrl }} style={styles.image} />
+            )}
 
             <View style={styles.detail}>
               <Text style={styles.label}>Plats</Text>
@@ -158,5 +168,12 @@ const styles = StyleSheet.create({
   error: {
     fontSize: 16,
     color: "#b91c1c",
+  },
+  image: {
+    width: "100%",
+    height: 200,
+    borderRadius: 14,
+    marginBottom: 24,
+    resizeMode: "cover",
   },
 });

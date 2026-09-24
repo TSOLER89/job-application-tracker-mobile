@@ -1,5 +1,14 @@
+import { useRouter } from "expo-router";
 import { useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+    Alert,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function NewApplicationScreen() {
@@ -9,6 +18,52 @@ export default function NewApplicationScreen() {
   const [status, setStatus] = useState("Ansökt");
   const [dateApplied, setDateApplied] = useState("");
   const [notes, setNotes] = useState("");
+  const router = useRouter();
+
+  const handleSave = async () => {
+    if (!company.trim() || !position.trim() || !location.trim()) {
+      Alert.alert(
+        "Saknade uppgifter",
+        "Företag, Tjänst och Plats måste fyllas i.",
+      );
+      return;
+    }
+    if (status !== "Intresserad" && !dateApplied) {
+      Alert.alert("Saknat datum", " Fyll i ansökningsdatum.");
+      return;
+    }
+    //
+    try {
+      const response = await fetch(
+        "http://192.168.0.4:5250/api/JobApplications",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            company,
+            position,
+            location,
+            status,
+            dateApplied: status === "Intresserad" ? null : dateApplied,
+
+            notes,
+            imageUrl: null,
+          }),
+        },
+      );
+      if (!response.ok) {
+        throw new Error();
+      }
+      Alert.alert("Sparat", "Jobbansökan har skapats.");
+
+      router.replace("/");
+    } catch {
+      Alert.alert("Fel", "Kunde inte spara ansökan.");
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView
@@ -88,6 +143,9 @@ export default function NewApplicationScreen() {
             multiline
             numberOfLines={4}
           />
+          <Pressable style={styles.saveButton} onPress={handleSave}>
+            <Text style={styles.saveButtonText}>Spara</Text>
+          </Pressable>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -166,5 +224,17 @@ const styles = StyleSheet.create({
   notesInput: {
     minHeight: 100,
     textAlignVertical: "top",
+  },
+  saveButton: {
+    backgroundColor: "#1d2a44",
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: 24,
+  },
+  saveButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

@@ -21,6 +21,7 @@ export default function NewApplicationScreen() {
   const [location, setLocation] = useState("");
   const [status, setStatus] = useState("Ansökt");
   const [dateApplied, setDateApplied] = useState("");
+  const [dateError, setDateError] = useState("");
   const [notes, setNotes] = useState("");
   const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
 
@@ -48,6 +49,9 @@ export default function NewApplicationScreen() {
 
     if (status !== "Intresserad" && !dateApplied) {
       Alert.alert("Saknat datum", " Fyll i ansökningsdatum.");
+      return;
+    }
+    if (dateError) {
       return;
     }
 
@@ -154,11 +158,45 @@ export default function NewApplicationScreen() {
                 <Text style={styles.label}>Ansökningsdatum</Text>
 
                 <TextInput
-                  style={styles.input}
+                  style={[styles.input, dateError ? styles.inputError : null]}
                   placeholder="YYYY-MM-DD"
                   value={dateApplied}
-                  onChangeText={setDateApplied}
+                  maxLength={10}
+                  onChangeText={(value) => {
+                    setDateApplied(value);
+
+                    if (!value) {
+                      setDateError("");
+                      return;
+                    }
+
+                    const allowedPattern = /^\d{4}-\d{2}-\d{2}$/.test(value);
+                    if (!allowedPattern) {
+                      setDateError("Ange datum som YYYY-MM-DD");
+                      return;
+                    }
+
+                    if (value.length === 10) {
+                      const [year, month, day] = value.split("-").map(Number);
+
+                      const date = new Date(year, month - 1, day);
+
+                      const validDate =
+                        date.getFullYear() === year &&
+                        date.getMonth() === month - 1 &&
+                        date.getDate() === day;
+
+                      if (!validDate) {
+                        setDateError("Ange ett giltigt datum");
+                        return;
+                      }
+                    }
+
+                    setDateError("");
+                  }}
                 />
+
+                {dateError && <Text style={styles.errorText}>{dateError}</Text>}
               </>
             )}
 
@@ -242,6 +280,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: "#ffffff",
     color: "#1d2a44",
+  },
+  inputError: {
+    borderColor: "#b91c1c",
+  },
+
+  errorText: {
+    color: "#b91c1c",
+    fontSize: 13,
+    marginTop: 6,
   },
 
   statusContainer: {

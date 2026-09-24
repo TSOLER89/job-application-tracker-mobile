@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function NewApplicationScreen() {
+  const [company, setCompany] = useState("");
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.card}>
@@ -10,8 +12,15 @@ export default function NewApplicationScreen() {
         <Text style={styles.text}>
           Fyll i formuläret för att skapa en ny jobbansökan.
         </Text>
+
         <Text style={styles.label}>Företag</Text>
-        <TextInput style={styles.input} placeholder="Skriv företagets namn" />
+
+        <TextInput
+          style={styles.input}
+          placeholder="Skriv företagets namn"
+          value={company}
+          onChangeText={setCompany}
+        />
       </View>
     </SafeAreaView>
   );

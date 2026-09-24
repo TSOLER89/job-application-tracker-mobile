@@ -7,6 +7,7 @@ export default function NewApplicationScreen() {
   const [position, setPosition] = useState("");
   const [location, setLocation] = useState("");
   const [status, setStatus] = useState("Ansökt");
+  const [dateApplied, setDateApplied] = useState("");
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.card}>
@@ -58,6 +59,19 @@ export default function NewApplicationScreen() {
             ),
           )}
         </View>
+
+        {status !== "Intresserad" && (
+          <>
+            <Text style={styles.label}>Ansökningsdatum</Text>
+
+            <TextInput
+              style={styles.input}
+              placeholder="YYYY-MM-DD"
+              value={dateApplied}
+              onChangeText={setDateApplied}
+            />
+          </>
+        )}
       </View>
     </SafeAreaView>
   );

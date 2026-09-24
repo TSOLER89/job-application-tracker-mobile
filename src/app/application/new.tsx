@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function NewApplicationScreen() {
@@ -8,71 +8,88 @@ export default function NewApplicationScreen() {
   const [location, setLocation] = useState("");
   const [status, setStatus] = useState("Ansökt");
   const [dateApplied, setDateApplied] = useState("");
+  const [notes, setNotes] = useState("");
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>Ny jobbansökan</Text>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        showsVerticalScrollIndicator={false}
+      >
+        <View style={styles.card}>
+          <Text style={styles.title}>Ny jobbansökan</Text>
 
-        <Text style={styles.text}>
-          Fyll i formuläret för att skapa en ny jobbansökan.
-        </Text>
+          <Text style={styles.text}>
+            Fyll i formuläret för att skapa en ny jobbansökan.
+          </Text>
 
-        <Text style={styles.label}>Företag</Text>
+          <Text style={styles.label}>Företag</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Skriv företagets namn"
-          value={company}
-          onChangeText={setCompany}
-        />
-        <Text style={styles.label}>Tjänst</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Skriv företagets namn"
+            value={company}
+            onChangeText={setCompany}
+          />
+          <Text style={styles.label}>Tjänst</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Skriv tjänstens namn"
-          value={position}
-          onChangeText={setPosition}
-        />
-        <Text style={styles.label}>Plats</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Skriv tjänstens namn"
+            value={position}
+            onChangeText={setPosition}
+          />
+          <Text style={styles.label}>Plats</Text>
 
-        <TextInput
-          style={styles.input}
-          placeholder="Skriv plats"
-          value={location}
-          onChangeText={setLocation}
-        />
-        <Text style={styles.label}>Status</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Skriv plats"
+            value={location}
+            onChangeText={setLocation}
+          />
+          <Text style={styles.label}>Status</Text>
 
-        <View style={styles.statusContainer}>
-          {["Ansökt", "Intresserad", "Intervju", "Erbjudande", "Avslag"].map(
-            (statusOption) => (
-              <Text
-                key={statusOption}
-                style={[
-                  styles.statusOption,
-                  status === statusOption && styles.statusOptionActive,
-                ]}
-                onPress={() => setStatus(statusOption)}
-              >
-                {statusOption}
-              </Text>
-            ),
+          <View style={styles.statusContainer}>
+            {["Ansökt", "Intresserad", "Intervju", "Erbjudande", "Avslag"].map(
+              (statusOption) => (
+                <Text
+                  key={statusOption}
+                  style={[
+                    styles.statusOption,
+                    status === statusOption && styles.statusOptionActive,
+                  ]}
+                  onPress={() => setStatus(statusOption)}
+                >
+                  {statusOption}
+                </Text>
+              ),
+            )}
+          </View>
+
+          {status !== "Intresserad" && (
+            <>
+              <Text style={styles.label}>Ansökningsdatum</Text>
+
+              <TextInput
+                style={styles.input}
+                placeholder="YYYY-MM-DD"
+                value={dateApplied}
+                onChangeText={setDateApplied}
+              />
+            </>
           )}
+
+          <Text style={styles.label}>Anteckningar</Text>
+
+          <TextInput
+            style={[styles.input, styles.notesInput]}
+            placeholder="Skriv anteckningar..."
+            value={notes}
+            onChangeText={setNotes}
+            multiline
+            numberOfLines={4}
+          />
         </View>
-
-        {status !== "Intresserad" && (
-          <>
-            <Text style={styles.label}>Ansökningsdatum</Text>
-
-            <TextInput
-              style={styles.input}
-              placeholder="YYYY-MM-DD"
-              value={dateApplied}
-              onChangeText={setDateApplied}
-            />
-          </>
-        )}
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -82,6 +99,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#f3f6fb",
     padding: 20,
+  },
+  scrollContent: {
+    paddingBottom: 20,
   },
 
   card: {
@@ -141,5 +161,10 @@ const styles = StyleSheet.create({
   statusOptionActive: {
     backgroundColor: "#1d2a44",
     color: "#ffffff",
+  },
+
+  notesInput: {
+    minHeight: 100,
+    textAlignVertical: "top",
   },
 });

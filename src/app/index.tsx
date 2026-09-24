@@ -76,6 +76,15 @@ export default function HomeScreen() {
             </ThemedText>
           </ThemedView>
 
+          <Pressable
+            style={styles.addButton}
+            onPress={() => router.push("/application/new")}
+          >
+            <ThemedText style={styles.addButtonText}>
+              Lägg till ny ansökan
+            </ThemedText>
+          </Pressable>
+
           {loading && <ThemedText>Laddar ansökningar...</ThemedText>}
 
           {error && <ThemedText style={styles.errorText}>{error}</ThemedText>}
@@ -191,6 +200,21 @@ const styles = StyleSheet.create({
 
   pressable: {
     marginBottom: 14,
+  },
+
+  addButton: {
+    backgroundColor: "#1d2a44",
+    paddingVertical: 14,
+    paddingHorizontal: 18,
+    borderRadius: 14,
+    alignItems: "center",
+    marginBottom: 20,
+  },
+
+  addButtonText: {
+    color: "#ffffff",
+    fontSize: 15,
+    fontWeight: "700",
   },
 
   applicationCard: {

@@ -3,6 +3,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
     Alert,
+    Image,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -21,7 +22,7 @@ export default function NewApplicationScreen() {
   const [status, setStatus] = useState("Ansökt");
   const [dateApplied, setDateApplied] = useState("");
   const [notes, setNotes] = useState("");
-  const [image, setImage] = useState<string | null>(null);
+  const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -30,7 +31,7 @@ export default function NewApplicationScreen() {
       quality: 1,
     });
     if (!result.canceled) {
-      setImage(result.assets[0].uri);
+      setImage(result.assets[0]);
     }
   };
 
@@ -177,6 +178,10 @@ export default function NewApplicationScreen() {
               <Text style={styles.imageButtonText}>Välj bild</Text>
             </Pressable>
 
+            {image && (
+              <Image source={{ uri: image.uri }} style={styles.imagePreview} />
+            )}
+
             <Pressable style={styles.saveButton} onPress={handleSave}>
               <Text style={styles.saveButtonText}>Spara</Text>
             </Pressable>
@@ -288,5 +293,13 @@ const styles = StyleSheet.create({
     color: "#1d2a44",
     fontSize: 15,
     fontWeight: "600",
+  },
+
+  imagePreview: {
+    width: "100%",
+    height: 200,
+    borderRadius: 14,
+    marginTop: 12,
+    resizeMode: "cover",
   },
 });

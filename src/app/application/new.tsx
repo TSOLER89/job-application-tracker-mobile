@@ -5,6 +5,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function NewApplicationScreen() {
   const [company, setCompany] = useState("");
   const [position, setPosition] = useState("");
+  const [location, setLocation] = useState("");
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.card}>
@@ -29,6 +30,14 @@ export default function NewApplicationScreen() {
           placeholder="Skriv tjänstens namn"
           value={position}
           onChangeText={setPosition}
+        />
+        <Text style={styles.label}>Plats</Text>
+
+        <TextInput
+          style={styles.input}
+          placeholder="Skriv plats"
+          value={location}
+          onChangeText={setLocation}
         />
       </View>
     </SafeAreaView>

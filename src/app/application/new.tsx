@@ -1,3 +1,4 @@
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -20,6 +21,18 @@ export default function NewApplicationScreen() {
   const [status, setStatus] = useState("Ansökt");
   const [dateApplied, setDateApplied] = useState("");
   const [notes, setNotes] = useState("");
+  const [image, setImage] = useState<string | null>(null);
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ["images"],
+      allowsEditing: true,
+      quality: 1,
+    });
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+    }
+  };
 
   const router = useRouter();
 
@@ -158,6 +171,12 @@ export default function NewApplicationScreen() {
               multiline
               numberOfLines={4}
             />
+            <Text style={styles.label}>Bild</Text>
+
+            <Pressable style={styles.imageButton} onPress={pickImage}>
+              <Text style={styles.imageButtonText}>Välj bild</Text>
+            </Pressable>
+
             <Pressable style={styles.saveButton} onPress={handleSave}>
               <Text style={styles.saveButtonText}>Spara</Text>
             </Pressable>
@@ -255,6 +274,19 @@ const styles = StyleSheet.create({
   saveButtonText: {
     color: "#ffffff",
     fontSize: 16,
+    fontWeight: "600",
+  },
+  imageButton: {
+    backgroundColor: "#e8eef7",
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: 4,
+  },
+
+  imageButtonText: {
+    color: "#1d2a44",
+    fontSize: 15,
     fontWeight: "600",
   },
 });

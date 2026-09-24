@@ -2,6 +2,8 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
     Alert,
+    KeyboardAvoidingView,
+    Platform,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -18,6 +20,7 @@ export default function NewApplicationScreen() {
   const [status, setStatus] = useState("Ansökt");
   const [dateApplied, setDateApplied] = useState("");
   const [notes, setNotes] = useState("");
+
   const router = useRouter();
 
   const handleSave = async () => {
@@ -28,11 +31,13 @@ export default function NewApplicationScreen() {
       );
       return;
     }
+
     if (status !== "Intresserad" && !dateApplied) {
       Alert.alert("Saknat datum", " Fyll i ansökningsdatum.");
       return;
     }
-    //
+
+    // Send the POST request to create a new job application
     try {
       const response = await fetch(
         "http://192.168.0.4:5250/api/JobApplications",
@@ -42,17 +47,18 @@ export default function NewApplicationScreen() {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            company,
-            position,
-            location,
+            company: company.trim(),
+            position: position.trim(),
+            location: location.trim(),
             status,
             dateApplied: status === "Intresserad" ? null : dateApplied,
 
-            notes,
+            notes: notes.trim(),
             imageUrl: null,
           }),
         },
       );
+
       if (!response.ok) {
         throw new Error();
       }
@@ -66,46 +72,56 @@ export default function NewApplicationScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
       >
-        <View style={styles.card}>
-          <Text style={styles.title}>Ny jobbansökan</Text>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.card}>
+            <Text style={styles.title}>Ny jobbansökan</Text>
 
-          <Text style={styles.text}>
-            Fyll i formuläret för att skapa en ny jobbansökan.
-          </Text>
+            <Text style={styles.text}>
+              Fyll i formuläret för att skapa en ny jobbansökan.
+            </Text>
 
-          <Text style={styles.label}>Företag</Text>
+            <Text style={styles.label}>Företag</Text>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Skriv företagets namn"
-            value={company}
-            onChangeText={setCompany}
-          />
-          <Text style={styles.label}>Tjänst</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Skriv företagets namn"
+              value={company}
+              onChangeText={setCompany}
+            />
+            <Text style={styles.label}>Tjänst</Text>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Skriv tjänstens namn"
-            value={position}
-            onChangeText={setPosition}
-          />
-          <Text style={styles.label}>Plats</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Skriv tjänstens namn"
+              value={position}
+              onChangeText={setPosition}
+            />
+            <Text style={styles.label}>Plats</Text>
 
-          <TextInput
-            style={styles.input}
-            placeholder="Skriv plats"
-            value={location}
-            onChangeText={setLocation}
-          />
-          <Text style={styles.label}>Status</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Skriv plats"
+              value={location}
+              onChangeText={setLocation}
+            />
+            <Text style={styles.label}>Status</Text>
 
-          <View style={styles.statusContainer}>
-            {["Ansökt", "Intresserad", "Intervju", "Erbjudande", "Avslag"].map(
-              (statusOption) => (
+            <View style={styles.statusContainer}>
+              {[
+                "Ansökt",
+                "Intresserad",
+                "Intervju",
+                "Erbjudande",
+                "Avslag",
+              ].map((statusOption) => (
                 <Text
                   key={statusOption}
                   style={[
@@ -116,38 +132,38 @@ export default function NewApplicationScreen() {
                 >
                   {statusOption}
                 </Text>
-              ),
+              ))}
+            </View>
+
+            {status !== "Intresserad" && (
+              <>
+                <Text style={styles.label}>Ansökningsdatum</Text>
+
+                <TextInput
+                  style={styles.input}
+                  placeholder="YYYY-MM-DD"
+                  value={dateApplied}
+                  onChangeText={setDateApplied}
+                />
+              </>
             )}
+
+            <Text style={styles.label}>Anteckningar</Text>
+
+            <TextInput
+              style={[styles.input, styles.notesInput]}
+              placeholder="Skriv anteckningar..."
+              value={notes}
+              onChangeText={setNotes}
+              multiline
+              numberOfLines={4}
+            />
+            <Pressable style={styles.saveButton} onPress={handleSave}>
+              <Text style={styles.saveButtonText}>Spara</Text>
+            </Pressable>
           </View>
-
-          {status !== "Intresserad" && (
-            <>
-              <Text style={styles.label}>Ansökningsdatum</Text>
-
-              <TextInput
-                style={styles.input}
-                placeholder="YYYY-MM-DD"
-                value={dateApplied}
-                onChangeText={setDateApplied}
-              />
-            </>
-          )}
-
-          <Text style={styles.label}>Anteckningar</Text>
-
-          <TextInput
-            style={[styles.input, styles.notesInput]}
-            placeholder="Skriv anteckningar..."
-            value={notes}
-            onChangeText={setNotes}
-            multiline
-            numberOfLines={4}
-          />
-          <Pressable style={styles.saveButton} onPress={handleSave}>
-            <Text style={styles.saveButtonText}>Spara</Text>
-          </Pressable>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -158,6 +174,10 @@ const styles = StyleSheet.create({
     backgroundColor: "#f3f6fb",
     padding: 20,
   },
+  keyboardView: {
+    flex: 1,
+  },
+
   scrollContent: {
     paddingBottom: 20,
   },

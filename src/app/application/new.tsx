@@ -1,3 +1,6 @@
+import { File } from "expo-file-system";
+import { fetch as expoFetch } from "expo/fetch";
+
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -38,6 +41,35 @@ export default function NewApplicationScreen() {
 
   const router = useRouter();
 
+  const uploadImage = async () => {
+    if (!image) {
+      return null;
+    }
+
+    const file = new File(image.uri);
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const response = await expoFetch(
+      "http://192.168.0.4:5250/api/JobApplications/uploadimage",
+      {
+        method: "POST",
+        body: formData,
+      },
+    );
+
+    const responseText = await response.text();
+
+    if (!response.ok) {
+      throw new Error("Kunde inte ladda upp bilden.");
+    }
+
+    const data = JSON.parse(responseText);
+
+    return data.imageUrl;
+  };
+
   const handleSave = async () => {
     if (!company.trim() || !position.trim() || !location.trim()) {
       Alert.alert(
@@ -57,7 +89,8 @@ export default function NewApplicationScreen() {
 
     // Send the POST request to create a new job application
     try {
-      const response = await fetch(
+      const uploadImageUrl = await uploadImage();
+      const response = await expoFetch(
         "http://192.168.0.4:5250/api/JobApplications",
         {
           method: "POST",
@@ -72,7 +105,7 @@ export default function NewApplicationScreen() {
             dateApplied: status === "Intresserad" ? null : dateApplied,
 
             notes: notes.trim(),
-            imageUrl: null,
+            imageUrl: uploadImageUrl,
           }),
         },
       );
@@ -83,7 +116,9 @@ export default function NewApplicationScreen() {
       Alert.alert("Sparat", "Jobbansökan har skapats.");
 
       router.replace("/");
-    } catch {
+    } catch (error) {
+      console.log("SAVE ERROR:", error);
+
       Alert.alert("Fel", "Kunde inte spara ansökan.");
     }
   };

@@ -6,6 +6,7 @@ export default function NewApplicationScreen() {
   const [company, setCompany] = useState("");
   const [position, setPosition] = useState("");
   const [location, setLocation] = useState("");
+  const [status, setStatus] = useState("Ansökt");
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.card}>
@@ -39,6 +40,24 @@ export default function NewApplicationScreen() {
           value={location}
           onChangeText={setLocation}
         />
+        <Text style={styles.label}>Status</Text>
+
+        <View style={styles.statusContainer}>
+          {["Ansökt", "Intresserad", "Intervju", "Erbjudande", "Avslag"].map(
+            (statusOption) => (
+              <Text
+                key={statusOption}
+                style={[
+                  styles.statusOption,
+                  status === statusOption && styles.statusOptionActive,
+                ]}
+                onPress={() => setStatus(statusOption)}
+              >
+                {statusOption}
+              </Text>
+            ),
+          )}
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -87,5 +106,26 @@ const styles = StyleSheet.create({
     fontSize: 16,
     backgroundColor: "#ffffff",
     color: "#1d2a44",
+  },
+
+  statusContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 8,
+  },
+
+  statusOption: {
+    backgroundColor: "#e8eef7",
+    color: "#1d2a44",
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    fontSize: 13,
+    fontWeight: "600",
+  },
+
+  statusOptionActive: {
+    backgroundColor: "#1d2a44",
+    color: "#ffffff",
   },
 });

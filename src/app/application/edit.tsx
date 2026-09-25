@@ -22,7 +22,9 @@ export default function EditApplicationScreen() {
   const [company, setCompany] = useState("");
   const [position, setPosition] = useState("");
   const [location, setLocation] = useState("");
-  const [status, setStatus] = useState("");
+  const [status, setStatus] = useState("Ansökt");
+  const [dateApplied, setDateApplied] = useState("");
+  const [notes, setNotes] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -53,6 +55,9 @@ export default function EditApplicationScreen() {
         setPosition(selectedApplication.position);
         setLocation(selectedApplication.location);
         setStatus(selectedApplication.status);
+        setDateApplied(selectedApplication.dateApplied ?? "");
+        setNotes(selectedApplication.notes ?? "");
+
         setError("");
       } catch {
         setError("Kunde inte ansluta till backend");
@@ -116,6 +121,29 @@ export default function EditApplicationScreen() {
                 ),
               )}
             </View>
+            {status !== "Intresserad" && (
+              <>
+                <Text style={styles.label}>Ansökningsdatum</Text>
+
+                <TextInput
+                  style={styles.input}
+                  placeholder="YYYY-MM-DD"
+                  value={dateApplied}
+                  onChangeText={setDateApplied}
+                />
+              </>
+            )}
+
+            <Text style={styles.label}>Anteckningar</Text>
+
+            <TextInput
+              style={[styles.input, styles.notesInput]}
+              placeholder="Skriv anteckningar..."
+              value={notes}
+              onChangeText={setNotes}
+              multiline
+              numberOfLines={4}
+            />
           </>
         )}
       </View>
@@ -200,5 +228,9 @@ const styles = StyleSheet.create({
     backgroundColor: "#1d2a44",
     color: "#ffffff",
     borderColor: "#1d2a44",
+  },
+  notesInput: {
+    height: 100,
+    textAlignVertical: "top",
   },
 });

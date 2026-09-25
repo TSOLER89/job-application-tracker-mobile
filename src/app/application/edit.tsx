@@ -1,6 +1,6 @@
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, TextInput, View } from "react-native";
+import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type JobApplication = {
@@ -16,6 +16,7 @@ type JobApplication = {
 
 export default function EditApplicationScreen() {
   const { id } = useLocalSearchParams();
+  const router = useRouter();
 
   const [application, setApplication] = useState<JobApplication | null>(null);
 
@@ -67,6 +68,41 @@ export default function EditApplicationScreen() {
     };
     loadApplication();
   }, [id]);
+
+  const handleSave = async () => {
+    try {
+      const response = await fetch(
+        `http://192.168.0.4:5250/api/JobApplications/${id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            id: Number(id),
+            company: company.trim(),
+            position: position.trim(),
+            location: location.trim(),
+            status,
+            dateApplied: status === "Intresserad" ? null : dateApplied,
+            notes: notes.trim(),
+            imageUrl: application?.imageUrl ?? null, // Preserve the existing image URL if available
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        throw new Error();
+      }
+
+      router.replace({
+        pathname: "/application/[id]", // Navigate to the application detail page after saving
+        params: { id: Number(id) }, // Pass the ID as a parameter
+      });
+    } catch {
+      setError("Kunde inte spara ändringar");
+    }
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -146,6 +182,9 @@ export default function EditApplicationScreen() {
             />
           </>
         )}
+        <Pressable style={styles.saveButton} onPress={handleSave}>
+          <Text style={styles.saveButtonText}>Spara ändringar</Text>
+        </Pressable>
       </View>
     </SafeAreaView>
   );
@@ -232,5 +271,17 @@ const styles = StyleSheet.create({
   notesInput: {
     height: 100,
     textAlignVertical: "top",
+  },
+  saveButton: {
+    backgroundColor: "#1d2a44",
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: 24,
+  },
+  saveButtonText: {
+    color: "#ffffff",
+    fontSize: 16,
+    fontWeight: "700",
   },
 });

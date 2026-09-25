@@ -21,6 +21,7 @@ export default function EditApplicationScreen() {
 
   const [company, setCompany] = useState("");
   const [position, setPosition] = useState("");
+  const [location, setLocation] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -49,6 +50,7 @@ export default function EditApplicationScreen() {
         setApplication(selectedApplication);
         setCompany(selectedApplication.company);
         setPosition(selectedApplication.position);
+        setLocation(selectedApplication.location);
         setError("");
       } catch {
         setError("Kunde inte ansluta till backend");
@@ -84,6 +86,14 @@ export default function EditApplicationScreen() {
               style={styles.value}
               value={position}
               onChangeText={setPosition}
+            />
+
+            <Text style={styles.label}>Plats</Text>
+
+            <TextInput
+              style={styles.value}
+              value={location}
+              onChangeText={setLocation}
             />
           </>
         )}

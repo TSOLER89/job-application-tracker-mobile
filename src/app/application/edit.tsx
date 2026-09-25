@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TextInput, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type JobApplication = {
@@ -18,6 +18,9 @@ export default function EditApplicationScreen() {
   const { id } = useLocalSearchParams();
 
   const [application, setApplication] = useState<JobApplication | null>(null);
+
+  const [company, setCompany] = useState("");
+  const [position, setPosition] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -44,6 +47,8 @@ export default function EditApplicationScreen() {
           return;
         }
         setApplication(selectedApplication);
+        setCompany(selectedApplication.company);
+        setPosition(selectedApplication.position);
         setError("");
       } catch {
         setError("Kunde inte ansluta till backend");
@@ -67,11 +72,19 @@ export default function EditApplicationScreen() {
           <>
             <Text style={styles.label}>Företag</Text>
 
-            <Text style={styles.value}>{application.company}</Text>
+            <TextInput
+              style={styles.value}
+              value={company}
+              onChangeText={setCompany}
+            />
 
             <Text style={styles.label}>Tjänst</Text>
 
-            <Text style={styles.value}>{application.position}</Text>
+            <TextInput
+              style={styles.value}
+              value={position}
+              onChangeText={setPosition}
+            />
           </>
         )}
       </View>
@@ -121,5 +134,17 @@ const styles = StyleSheet.create({
   error: {
     color: "#b91c1c",
     fontSize: 16,
+  },
+
+  input: {
+    borderWidth: 1,
+    borderColor: "#dbe3ee",
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 16,
+    backgroundColor: "#ffffff",
+    color: "#1d2a44",
+    marginTop: 6,
   },
 });

@@ -1,6 +1,15 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import {
+    KeyboardAvoidingView,
+    Platform,
+    Pressable,
+    ScrollView,
+    StyleSheet,
+    Text,
+    TextInput,
+    View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type JobApplication = {
@@ -106,86 +115,103 @@ export default function EditApplicationScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>Redigera jobbansökan</Text>
+      <KeyboardAvoidingView
+        style={styles.keyboardView}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.card}>
+            <Text style={styles.title}>Redigera jobbansökan</Text>
 
-        {loading && <Text style={styles.text}>Laddar ansökan...</Text>}
+            {loading && <Text style={styles.text}>Laddar ansökan...</Text>}
 
-        {error && <Text style={styles.error}>{error}</Text>}
+            {error && <Text style={styles.error}>{error}</Text>}
 
-        {application && (
-          <>
-            <Text style={styles.label}>Företag</Text>
-
-            <TextInput
-              style={styles.value}
-              value={company}
-              onChangeText={setCompany}
-            />
-
-            <Text style={styles.label}>Tjänst</Text>
-
-            <TextInput
-              style={styles.value}
-              value={position}
-              onChangeText={setPosition}
-            />
-
-            <Text style={styles.label}>Plats</Text>
-
-            <TextInput
-              style={styles.value}
-              value={location}
-              onChangeText={setLocation}
-            />
-
-            <Text style={styles.label}>Status</Text>
-
-            <View style={styles.statusContainer}>
-              {["Ansökt", "Intervju", "Erbjudande", "Avslag"].map(
-                (statusOption) => (
-                  <Text
-                    key={statusOption}
-                    style={[
-                      styles.statusOption,
-                      status === statusOption && styles.statusOptionActive,
-                    ]}
-                    onPress={() => setStatus(statusOption)}
-                  >
-                    {statusOption}
-                  </Text>
-                ),
-              )}
-            </View>
-            {status !== "Intresserad" && (
+            {application && (
               <>
-                <Text style={styles.label}>Ansökningsdatum</Text>
+                <Text style={styles.label}>Företag</Text>
 
                 <TextInput
                   style={styles.input}
-                  placeholder="YYYY-MM-DD"
-                  value={dateApplied}
-                  onChangeText={setDateApplied}
+                  value={company}
+                  onChangeText={setCompany}
                 />
+
+                <Text style={styles.label}>Tjänst</Text>
+
+                <TextInput
+                  style={styles.input}
+                  value={position}
+                  onChangeText={setPosition}
+                />
+
+                <Text style={styles.label}>Plats</Text>
+
+                <TextInput
+                  style={styles.input}
+                  value={location}
+                  onChangeText={setLocation}
+                />
+
+                <Text style={styles.label}>Status</Text>
+
+                <View style={styles.statusContainer}>
+                  {[
+                    "Ansökt",
+                    "Intresserad",
+                    "Intervju",
+                    "Erbjudande",
+                    "Avslag",
+                  ].map((statusOption) => (
+                    <Text
+                      key={statusOption}
+                      style={[
+                        styles.statusOption,
+                        status === statusOption && styles.statusOptionActive,
+                      ]}
+                      onPress={() => setStatus(statusOption)}
+                    >
+                      {statusOption}
+                    </Text>
+                  ))}
+                </View>
+
+                {status !== "Intresserad" && (
+                  <>
+                    <Text style={styles.label}>Ansökningsdatum</Text>
+
+                    <TextInput
+                      style={styles.input}
+                      placeholder="YYYY-MM-DD"
+                      value={dateApplied}
+                      onChangeText={setDateApplied}
+                    />
+                  </>
+                )}
+
+                <Text style={styles.label}>Anteckningar</Text>
+
+                <TextInput
+                  style={[styles.input, styles.notesInput]}
+                  placeholder="Skriv anteckningar..."
+                  value={notes}
+                  onChangeText={setNotes}
+                  multiline
+                  numberOfLines={4}
+                />
+
+                <Pressable style={styles.saveButton} onPress={handleSave}>
+                  <Text style={styles.saveButtonText}>Spara ändringar</Text>
+                </Pressable>
               </>
             )}
-
-            <Text style={styles.label}>Anteckningar</Text>
-
-            <TextInput
-              style={[styles.input, styles.notesInput]}
-              placeholder="Skriv anteckningar..."
-              value={notes}
-              onChangeText={setNotes}
-              multiline
-              numberOfLines={4}
-            />
-          </>
-        )}
-        <Pressable style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Spara ändringar</Text>
-        </Pressable>
-      </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
@@ -283,5 +309,11 @@ const styles = StyleSheet.create({
     color: "#ffffff",
     fontSize: 16,
     fontWeight: "700",
+  },
+  keyboardView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: 40,
   },
 });

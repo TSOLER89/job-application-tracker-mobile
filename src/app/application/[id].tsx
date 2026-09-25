@@ -1,6 +1,13 @@
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 type JobApplication = {
@@ -17,6 +24,8 @@ type JobApplication = {
 const API_BASE_URL = "http://192.168.0.4:5250";
 
 export default function ApplicationDetailsScreen() {
+  const router = useRouter();
+
   const { id } = useLocalSearchParams();
 
   const [application, setApplication] = useState<JobApplication | null>(null);
@@ -103,6 +112,19 @@ export default function ApplicationDetailsScreen() {
                 <Text style={styles.label}>Anteckningar</Text>
 
                 <Text style={styles.value}>{application.notes}</Text>
+                <Pressable
+                  style={styles.editButton}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/application/edit",
+                      params: {
+                        id: application.id.toString(),
+                      },
+                    })
+                  }
+                >
+                  <Text style={styles.editButtonText}>Redigera</Text>
+                </Pressable>
               </View>
             )}
           </View>
@@ -175,5 +197,18 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     marginBottom: 24,
     resizeMode: "cover",
+  },
+  editButton: {
+    backgroundColor: "#1d2a44",
+    paddingVertical: 13,
+    borderRadius: 12,
+    alignItems: "center",
+    marginTop: 8,
+  },
+
+  editButtonText: {
+    color: "#ffffff",
+    fontSize: 15,
+    fontWeight: "700",
   },
 });

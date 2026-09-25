@@ -20,6 +20,20 @@ export default function RootLayout() {
             headerShown: false,
           }}
         />
+
+        <Stack.Screen
+          name="application/[id]"
+          options={{
+            title: "Jobbansökan",
+          }}
+        />
+
+        <Stack.Screen
+          name="application/edit"
+          options={{
+            title: "Redigera",
+          }}
+        />
       </Stack>
     </ThemeProvider>
   );

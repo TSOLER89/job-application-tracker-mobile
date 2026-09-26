@@ -6,6 +6,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+
 type JobApplication = {
   id: number;
   company: string;
@@ -25,9 +27,7 @@ export default function HomeScreen() {
   useEffect(() => {
     const loadApplications = async () => {
       try {
-        const response = await fetch(
-          "http://192.168.0.4:5250/api/JobApplications",
-        );
+        const response = await fetch(`${API_BASE_URL}/api/JobApplications`);
 
         if (!response.ok) {
           throw new Error("Kunde inte hämta jobbansökningar");

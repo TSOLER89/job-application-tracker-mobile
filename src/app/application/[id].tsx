@@ -21,7 +21,7 @@ type JobApplication = {
   imageUrl: string | null;
 };
 
-const API_BASE_URL = "http://192.168.0.4:5250";
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 export default function ApplicationDetailsScreen() {
   const router = useRouter();
@@ -40,9 +40,7 @@ export default function ApplicationDetailsScreen() {
   useEffect(() => {
     const loadApplication = async () => {
       try {
-        const response = await fetch(
-          "http://192.168.0.4:5250/api/JobApplications",
-        );
+        const response = await fetch(`${API_BASE_URL}/api/JobApplications`);
 
         if (!response.ok) {
           throw new Error("Kunde inte hämta jobbanssökningar");

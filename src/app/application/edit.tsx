@@ -12,6 +12,8 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
+
 type JobApplication = {
   id: number;
   company: string;
@@ -42,9 +44,7 @@ export default function EditApplicationScreen() {
   useEffect(() => {
     const loadApplication = async () => {
       try {
-        const response = await fetch(
-          "http://192.168.0.4:5250/api/JobApplications",
-        );
+        const response = await fetch(`${API_BASE_URL}/api/JobApplications`);
 
         if (!response.ok) {
           throw new Error();
@@ -81,7 +81,7 @@ export default function EditApplicationScreen() {
   const handleSave = async () => {
     try {
       const response = await fetch(
-        `http://192.168.0.4:5250/api/JobApplications/${id}`,
+        `${API_BASE_URL}/api/JobApplications/${id}`,
         {
           method: "PUT",
           headers: {

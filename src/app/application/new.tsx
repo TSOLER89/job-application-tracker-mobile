@@ -5,18 +5,20 @@ import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
-    Alert,
-    Image,
-    KeyboardAvoidingView,
-    Platform,
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Text,
-    TextInput,
-    View,
+  Alert,
+  Image,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 export default function NewApplicationScreen() {
   const [company, setCompany] = useState("");
@@ -52,7 +54,7 @@ export default function NewApplicationScreen() {
     formData.append("file", file);
 
     const response = await expoFetch(
-      "http://192.168.0.4:5250/api/JobApplications/uploadimage",
+      `${API_BASE_URL}/api/JobApplications/uploadimage`,
       {
         method: "POST",
         body: formData,
@@ -90,25 +92,22 @@ export default function NewApplicationScreen() {
     // Send the POST request to create a new job application
     try {
       const uploadImageUrl = await uploadImage();
-      const response = await expoFetch(
-        "http://192.168.0.4:5250/api/JobApplications",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            company: company.trim(),
-            position: position.trim(),
-            location: location.trim(),
-            status,
-            dateApplied: status === "Intresserad" ? null : dateApplied,
-
-            notes: notes.trim(),
-            imageUrl: uploadImageUrl,
-          }),
+      const response = await expoFetch(`${API_BASE_URL}/api/JobApplications`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+        body: JSON.stringify({
+          company: company.trim(),
+          position: position.trim(),
+          location: location.trim(),
+          status,
+          dateApplied: status === "Intresserad" ? null : dateApplied,
+
+          notes: notes.trim(),
+          imageUrl: uploadImageUrl,
+        }),
+      });
 
       if (!response.ok) {
         throw new Error();

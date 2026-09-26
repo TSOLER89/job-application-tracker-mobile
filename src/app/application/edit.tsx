@@ -79,6 +79,10 @@ export default function EditApplicationScreen() {
   }, [id]);
 
   const handleSave = async () => {
+    if (!company.trim() || !position.trim() || !location.trim()) {
+      setError("Företag, tjänst och plats måste fyllas i.");
+      return;
+    }
     try {
       const response = await fetch(
         `${API_BASE_URL}/api/JobApplications/${id}`,

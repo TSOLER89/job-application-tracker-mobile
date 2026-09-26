@@ -83,6 +83,16 @@ export default function EditApplicationScreen() {
       setError("Företag, tjänst och plats måste fyllas i.");
       return;
     }
+    if (status !== "Intresserad" && !dateApplied) {
+      setError("Fyll i ansökningsdatum.");
+      return;
+    }
+
+    if (status !== "Intresserad" && !/^\d{4}-\d{2}-\d{2}$/.test(dateApplied)) {
+      setError("Ange datum som YYYY-MM-DD.");
+      return;
+    }
+
     try {
       const response = await fetch(
         `${API_BASE_URL}/api/JobApplications/${id}`,

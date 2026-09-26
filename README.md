@@ -1,56 +1,156 @@
-# Welcome to your Expo app 👋
+# Job Application Tracker Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Mobilversionen av **Job Application Tracker**, byggd med React Native och Expo.
 
-## Get started
+Appen använder samma ASP.NET Web API som webbversionen och gör det möjligt att hantera jobbansökningar direkt från mobilen.
 
-1. Install dependencies
+## Funktioner
 
-   ```bash
-   npm install
-   ```
+- Visa alla jobbansökningar
+- Visa detaljer för en jobbansökan
+- Skapa en ny jobbansökan
+- Redigera en befintlig jobbansökan
+- Ladda upp och visa bilder
+- Navigera mellan olika skärmar
+- Visa olika statusar för en ansökan
+- Mobilanpassat gränssnitt
 
-2. Start the app
+## Teknik
 
-   ```bash
-   npx expo start
-   ```
+Projektet använder bland annat:
 
-In the output, you'll find options to open the app in a
+- React Native
+- Expo
+- Expo Router
+- TypeScript
+- Expo Image Picker
+- Expo File System
+- REST API
+- ASP.NET Web API som backend
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Förutsättningar
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+För att köra mobilappen behövs:
 
-## Get a fresh project
+- Node.js och npm
+- Expo Go på mobilen eller en emulator
+- Backend-projektet igång
+- Datorn och mobilen på samma nätverk om Expo Go används på en fysisk mobil
 
-When you're ready, run:
+## Installation
+
+Klona projektet och installera dependencies:
 
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## Backend
 
-### Other setup steps
+Mobilappen använder samma backend som webbapplikationen.
 
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
+Starta backend så att den går att nå från mobilen:
 
-## Learn more
+```bash
+dotnet run --urls "http://0.0.0.0:5250"
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Backend kör då på port 5250.
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## Environment variable
 
-## Join the community
+Mobilappen använder en environment variable för adressen till backend.
 
-Join our community of developers creating universal apps.
+Skapa en fil som heter `.env` i projektets rot.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+Lägg sedan till:
+
+```env
+EXPO_PUBLIC_API_BASE_URL=http://DIN-IP-ADRESS:5250
+```
+
+Exempel:
+
+```env
+EXPO_PUBLIC_API_BASE_URL=http://192.168.0.4:5250
+```
+
+Byt ut IP-adressen mot IP-adressen till datorn där backend körs.
+
+Telefonen och datorn behöver vara anslutna till samma nätverk när Expo Go används på en fysisk mobil.
+
+## Starta appen
+
+Starta Expo med:
+
+```bash
+npx expo start
+```
+
+En QR-kod visas i terminalen.
+
+Öppna **Expo Go** på mobilen och skanna QR-koden för att starta appen.
+
+## Projektstruktur
+
+Några av de viktigaste filerna är:
+
+### Startsida
+
+`src/app/index.tsx`
+
+Hämtar och visar alla jobbansökningar.
+
+### Detaljsida
+
+`src/app/application/[id].tsx`
+
+Visar detaljer för en vald jobbansökan.
+
+### Ny ansökan
+
+`src/app/application/new.tsx`
+
+Formulär för att skapa en ny jobbansökan.
+
+### Redigera ansökan
+
+`src/app/application/edit.tsx`
+
+Formulär för att redigera en befintlig jobbansökan.
+
+## API
+
+Mobilappen kommunicerar med samma REST API som webbapplikationen.
+
+### Hämta jobbansökningar
+
+`GET /api/JobApplications`
+
+### Skapa jobbansökan
+
+`POST /api/JobApplications`
+
+### Uppdatera jobbansökan
+
+`PUT /api/JobApplications/{id}`
+
+### Ladda upp bild
+
+`POST /api/JobApplications/uploadimage`
+
+## Bildhantering
+
+Användaren kan välja en bild från mobilen.
+
+Bilden laddas först upp till backend och därefter sparas bildens URL tillsammans med jobbansökan.
+
+## Relaterade projekt
+
+Applikationen består av tre delar:
+
+- Webb: https://github.com/TSOLER89/job-application-tracker
+- Backend: https://github.com/TSOLER89/job-application-tracker-api
+- Mobil: https://github.com/TSOLER89/job-application-tracker-mobile
+
+Webb- och mobilapplikationen använder samma ASP.NET Web API och samma data.

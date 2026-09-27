@@ -1,6 +1,7 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -118,7 +119,12 @@ export default function EditApplicationScreen() {
         throw new Error();
       }
 
-      router.back();
+      Alert.alert("Sparat", "Ändringarna har sparats.", [
+        {
+          text: "OK",
+          onPress: () => router.back(),
+        },
+      ]);
     } catch {
       setError("Kunde inte spara ändringar");
     }

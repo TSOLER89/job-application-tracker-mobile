@@ -1,5 +1,5 @@
-import { useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useFocusEffect, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import { Pressable, ScrollView, StyleSheet } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -24,28 +24,30 @@ export default function HomeScreen() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    const loadApplications = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/JobApplications`);
+  useFocusEffect(
+    useCallback(() => {
+      const loadApplications = async () => {
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/JobApplications`);
 
-        if (!response.ok) {
-          throw new Error("Kunde inte hämta jobbansökningar");
+          if (!response.ok) {
+            throw new Error("Kunde inte hämta jobbansökningar");
+          }
+
+          const data = await response.json();
+
+          setApplications(data);
+          setError("");
+        } catch {
+          setError("Kunde inte ansluta till backend");
+        } finally {
+          setLoading(false);
         }
+      };
 
-        const data = await response.json();
-
-        setApplications(data);
-        setError("");
-      } catch {
-        setError("Kunde inte ansluta till backend");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadApplications();
-  }, []);
+      loadApplications();
+    }, []),
+  );
 
   return (
     <ThemedView style={styles.container}>

@@ -1,5 +1,5 @@
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
+import { useCallback, useState } from "react";
 import {
   Image,
   Pressable,
@@ -37,37 +37,41 @@ export default function ApplicationDetailsScreen() {
     ? `${API_BASE_URL}${application.imageUrl}`
     : null;
 
-  useEffect(() => {
-    const loadApplication = async () => {
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/JobApplications`);
+  useFocusEffect(
+    useCallback(() => {
+      const loadApplication = async () => {
+        try {
+          setLoading(true);
 
-        if (!response.ok) {
-          throw new Error("Kunde inte hämta jobbanssökningar");
+          const response = await fetch(`${API_BASE_URL}/api/JobApplications`);
+
+          if (!response.ok) {
+            throw new Error("Kunde inte hämta jobbanssökningar");
+          }
+
+          const data: JobApplication[] = await response.json();
+
+          const selectedApplication = data.find(
+            (application) => application.id === Number(id),
+          );
+
+          if (!selectedApplication) {
+            setError("Jobbansökan hittades inte");
+            return;
+          }
+
+          setApplication(selectedApplication);
+          setError("");
+        } catch {
+          setError("Kunde inte ansluta till backend");
+        } finally {
+          setLoading(false);
         }
+      };
 
-        const data: JobApplication[] = await response.json();
-
-        const selectedApplication = data.find(
-          (application) => application.id === Number(id),
-        );
-
-        if (!selectedApplication) {
-          setError("Jobbansökan hittades inte");
-          return;
-        }
-
-        setApplication(selectedApplication);
-        setError("");
-      } catch {
-        setError("Kunde inte ansluta till backend");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    loadApplication();
-  }, [id]);
+      loadApplication();
+    }, [id]),
+  );
 
   return (
     <SafeAreaView style={styles.container}>

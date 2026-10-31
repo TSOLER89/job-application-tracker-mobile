@@ -3,7 +3,7 @@ import { fetch as expoFetch } from "expo/fetch";
 
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   Alert,
   Image,
@@ -72,7 +72,11 @@ export default function NewApplicationScreen() {
     return data.imageUrl;
   };
 
+  const [isSaving, setIsSaving] = useState(false);
+  const savingRef = useRef(false);
+
   const handleSave = async () => {
+    if (savingRef.current) return;
     if (!company.trim() || !position.trim() || !location.trim()) {
       Alert.alert(
         "Saknade uppgifter",
@@ -85,11 +89,13 @@ export default function NewApplicationScreen() {
       Alert.alert("Saknat datum", " Fyll i ansökningsdatum.");
       return;
     }
-    if (dateError) {
+    if (status !== "Intresserad" && dateError) {
       return;
     }
 
     // Send the POST request to create a new job application
+    savingRef.current = true;
+    setIsSaving(true);
     try {
       const uploadImageUrl = await uploadImage();
       const response = await expoFetch(`${API_BASE_URL}/api/JobApplications`, {
@@ -119,6 +125,9 @@ export default function NewApplicationScreen() {
       console.log("SAVE ERROR:", error);
 
       Alert.alert("Fel", "Kunde inte spara ansökan.");
+    } finally {
+      savingRef.current = false;
+      setIsSaving(false);
     }
   };
 
@@ -143,6 +152,7 @@ export default function NewApplicationScreen() {
             <Text style={styles.label}>Företag</Text>
 
             <TextInput
+              editable={!isSaving}
               style={styles.input}
               placeholder="Skriv företagets namn"
               value={company}
@@ -151,6 +161,7 @@ export default function NewApplicationScreen() {
             <Text style={styles.label}>Tjänst</Text>
 
             <TextInput
+              editable={!isSaving}
               style={styles.input}
               placeholder="Skriv tjänstens namn"
               value={position}
@@ -159,6 +170,7 @@ export default function NewApplicationScreen() {
             <Text style={styles.label}>Plats</Text>
 
             <TextInput
+              editable={!isSaving}
               style={styles.input}
               placeholder="Skriv plats"
               value={location}
@@ -180,7 +192,7 @@ export default function NewApplicationScreen() {
                     styles.statusOption,
                     status === statusOption && styles.statusOptionActive,
                   ]}
-                  onPress={() => setStatus(statusOption)}
+                  onPress={() => { if (!savingRef.current) setStatus(statusOption); }}
                 >
                   {statusOption}
                 </Text>
@@ -192,6 +204,7 @@ export default function NewApplicationScreen() {
                 <Text style={styles.label}>Ansökningsdatum</Text>
 
                 <TextInput
+                  editable={!isSaving}
                   style={[styles.input, dateError ? styles.inputError : null]}
                   placeholder="YYYY-MM-DD"
                   value={dateApplied}
@@ -237,6 +250,7 @@ export default function NewApplicationScreen() {
             <Text style={styles.label}>Anteckningar</Text>
 
             <TextInput
+              editable={!isSaving}
               style={[styles.input, styles.notesInput]}
               placeholder="Skriv anteckningar..."
               value={notes}
@@ -246,7 +260,7 @@ export default function NewApplicationScreen() {
             />
             <Text style={styles.label}>Bild</Text>
 
-            <Pressable style={styles.imageButton} onPress={pickImage}>
+            <Pressable style={styles.imageButton} onPress={pickImage} disabled={isSaving}>
               <Text style={styles.imageButtonText}>Välj bild</Text>
             </Pressable>
 
@@ -254,8 +268,14 @@ export default function NewApplicationScreen() {
               <Image source={{ uri: image.uri }} style={styles.imagePreview} />
             )}
 
-            <Pressable style={styles.saveButton} onPress={handleSave}>
-              <Text style={styles.saveButtonText}>Spara</Text>
+            <Pressable
+              style={[styles.saveButton, isSaving && styles.disabledButton]}
+              onPress={handleSave}
+              disabled={isSaving}
+              accessibilityRole="button"
+              accessibilityState={{ disabled: isSaving, busy: isSaving }}
+            >
+              <Text style={styles.saveButtonText}>{isSaving ? "Sparar..." : "Spara"}</Text>
             </Pressable>
           </View>
         </ScrollView>
@@ -356,6 +376,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     marginTop: 24,
+  },
+  disabledButton: {
+    opacity: 0.65,
   },
   saveButtonText: {
     color: "#ffffff",

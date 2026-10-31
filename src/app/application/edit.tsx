@@ -1,5 +1,5 @@
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -79,7 +79,11 @@ export default function EditApplicationScreen() {
     loadApplication();
   }, [id]);
 
+  const [isSaving, setIsSaving] = useState(false);
+  const savingRef = useRef(false);
+
   const handleSave = async () => {
+    if (savingRef.current) return;
     if (!company.trim() || !position.trim() || !location.trim()) {
       setError("Företag, tjänst och plats måste fyllas i.");
       return;
@@ -94,6 +98,9 @@ export default function EditApplicationScreen() {
       return;
     }
 
+    savingRef.current = true;
+    setIsSaving(true);
+    setError("");
     try {
       const response = await fetch(
         `${API_BASE_URL}/api/JobApplications/${id}`,
@@ -119,14 +126,13 @@ export default function EditApplicationScreen() {
         throw new Error();
       }
 
-      Alert.alert("Sparat", "Ändringarna har sparats.", [
-        {
-          text: "OK",
-          onPress: () => router.back(),
-        },
-      ]);
+      Alert.alert("Sparat", "Ändringarna har sparats.");
+      router.back();
     } catch {
       setError("Kunde inte spara ändringar");
+    } finally {
+      savingRef.current = false;
+      setIsSaving(false);
     }
   };
 
@@ -153,6 +159,7 @@ export default function EditApplicationScreen() {
                 <Text style={styles.label}>Företag</Text>
 
                 <TextInput
+                  editable={!isSaving}
                   style={styles.input}
                   value={company}
                   onChangeText={setCompany}
@@ -161,6 +168,7 @@ export default function EditApplicationScreen() {
                 <Text style={styles.label}>Tjänst</Text>
 
                 <TextInput
+                  editable={!isSaving}
                   style={styles.input}
                   value={position}
                   onChangeText={setPosition}
@@ -169,6 +177,7 @@ export default function EditApplicationScreen() {
                 <Text style={styles.label}>Plats</Text>
 
                 <TextInput
+                  editable={!isSaving}
                   style={styles.input}
                   value={location}
                   onChangeText={setLocation}
@@ -190,7 +199,7 @@ export default function EditApplicationScreen() {
                         styles.statusOption,
                         status === statusOption && styles.statusOptionActive,
                       ]}
-                      onPress={() => setStatus(statusOption)}
+                      onPress={() => { if (!savingRef.current) setStatus(statusOption); }}
                     >
                       {statusOption}
                     </Text>
@@ -202,6 +211,7 @@ export default function EditApplicationScreen() {
                     <Text style={styles.label}>Ansökningsdatum</Text>
 
                     <TextInput
+                      editable={!isSaving}
                       style={styles.input}
                       placeholder="YYYY-MM-DD"
                       value={dateApplied}
@@ -213,6 +223,7 @@ export default function EditApplicationScreen() {
                 <Text style={styles.label}>Anteckningar</Text>
 
                 <TextInput
+                  editable={!isSaving}
                   style={[styles.input, styles.notesInput]}
                   placeholder="Skriv anteckningar..."
                   value={notes}
@@ -221,8 +232,16 @@ export default function EditApplicationScreen() {
                   numberOfLines={4}
                 />
 
-                <Pressable style={styles.saveButton} onPress={handleSave}>
-                  <Text style={styles.saveButtonText}>Spara ändringar</Text>
+                <Pressable
+                  style={[styles.saveButton, isSaving && styles.disabledButton]}
+                  onPress={handleSave}
+                  disabled={isSaving}
+                  accessibilityRole="button"
+                  accessibilityState={{ disabled: isSaving, busy: isSaving }}
+                >
+                  <Text style={styles.saveButtonText}>
+                    {isSaving ? "Sparar..." : "Spara ändringar"}
+                  </Text>
                 </Pressable>
               </>
             )}
@@ -321,6 +340,9 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     marginTop: 24,
+  },
+  disabledButton: {
+    opacity: 0.65,
   },
   saveButtonText: {
     color: "#ffffff",

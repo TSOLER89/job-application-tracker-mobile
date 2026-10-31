@@ -32,7 +32,7 @@ Projektet använder bland annat:
 
 För att köra mobilappen behövs:
 
-- Node.js och npm
+- Node.js 22.13 eller senare i Node 22-serien, samt npm (krävs av Expo SDK 58)
 - Expo Go på mobilen eller en emulator
 - Backend-projektet igång
 - Datorn och mobilen på samma nätverk om Expo Go används på en fysisk mobil
@@ -86,6 +86,27 @@ Starta Expo med:
 ```bash
 npx expo start
 ```
+
+Projektet använder **Expo SDK 58**. Expo Go på telefonen måste stödja samma SDK-version.
+
+Efter en SDK-uppdatering: stoppa den gamla Expo-servern med `Ctrl+C` och starta med tömd cache:
+
+```bash
+npx expo start --clear
+```
+
+Om port 8081 redan används kan en tidigare Expo-server fortfarande vara igång. Stoppa den i dess terminal med `Ctrl+C`, eller välj en annan port när Expo frågar. Skanna alltid QR-koden från den server som du just startat.
+
+### Kontrollera paket efter en uppdatering
+
+```bash
+npx expo install --check
+npx expo-doctor
+npm run lint
+npx tsc --noEmit
+```
+
+Om Expo Go visar `Project is incompatible with this version of Expo Go` behöver projektets SDK-version och Expo Go-versionen matchas. En patchuppdatering inom SDK 57 löser inte en konflikt med SDK 58. Följ [Expos uppgraderingsguide](https://docs.expo.dev/workflow/upgrading-expo-sdk-walkthrough/) vid framtida SDK-uppgraderingar.
 
 En QR-kod visas i terminalen.
 

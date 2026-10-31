@@ -114,21 +114,22 @@ export default function ApplicationDetailsScreen() {
                 <Text style={styles.label}>Anteckningar</Text>
 
                 <Text style={styles.value}>{application.notes}</Text>
-                <Pressable
-                  style={styles.editButton}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/application/edit",
-                      params: {
-                        id: application.id.toString(),
-                      },
-                    })
-                  }
-                >
-                  <Text style={styles.editButtonText}>Redigera</Text>
-                </Pressable>
               </View>
             )}
+            <Pressable
+              accessibilityRole="button"
+              style={styles.editButton}
+              onPress={() =>
+                router.push({
+                  pathname: "/application/edit",
+                  params: {
+                    id: application.id.toString(),
+                  },
+                })
+              }
+            >
+              <Text style={styles.editButtonText}>Redigera</Text>
+            </Pressable>
           </View>
         )}
       </ScrollView>

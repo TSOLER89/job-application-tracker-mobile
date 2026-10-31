@@ -166,6 +166,22 @@ Användaren kan välja en bild från mobilen.
 
 Bilden laddas först upp till backend och därefter sparas bildens URL tillsammans med jobbansökan.
 
+## Gränssnitt och återkoppling
+
+Appen använder samma blå färgpalett och statusfärger som webben. Mobilens bakgrund, formulär och texter följer telefonens ljusa eller mörka läge.
+
+- Statistik visas med `—` innan data har hämtats, i stället för missvisande nollor.
+- Laddning, tom lista och anslutningsfel har separata vyer. Vid anslutningsfel går det att försöka igen.
+- Lyckade sparningar visas som en stängbar bekräftelse som följer med tillbaka till listan eller detaljsidan.
+- Sparfel behåller formulärdata och visar valideringsmeddelanden från API:t.
+- Formulärfält har tillgänglighetsnamn. Statusval visar både färg, text och valt läge.
+- Detaljsidan hämtar den valda ansökan via `GET /api/JobApplications/{id}`.
+- På detaljsidan finns **Radera ansökan**, med bekräftelse och möjlighet att avbryta.
+- Vid redigering kan du behålla, byta eller ta bort bilden. Bildändringen sparas med **Spara ändringar**. Även vid skapande kan en vald bild tas bort innan du sparar.
+- Ett tomt ansökningsdatum accepteras, precis som i webben och API:t.
+
+Kontrollera före en demo på en fysisk telefon: ljust och mörkt läge, större textstorlek, tangentbordet i formulären, sparfel med bevarade uppgifter och bekräftelsen efter en lyckad sparning.
+
 ## Relaterade projekt
 
 Applikationen består av tre delar:

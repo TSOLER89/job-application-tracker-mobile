@@ -1,10 +1,15 @@
-import { useFocusEffect, useLocalSearchParams, useRouter } from "expo-router";
-import { useCallback, useState } from "react";
+import { useFocusedResource } from "@/hooks/use-focused-resource";
+import { useApplicationStyles } from "@/hooks/use-application-styles";
+import { FeedbackPanel } from "@/components/feedback-panel";
+import { StatusBadge } from "@/components/status-badge";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useRef, useState } from "react";
+import { useSuccessFeedback } from "@/components/feedback-provider";
+import { readApiError } from "@/utils/api-error";
 import {
   Image,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   View,
 } from "react-native";
@@ -24,63 +29,47 @@ type JobApplication = {
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 export default function ApplicationDetailsScreen() {
+  const styles = useApplicationStyles();
   const router = useRouter();
+  const showSuccess = useSuccessFeedback();
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+  const deletingRef = useRef(false);
 
   const { id } = useLocalSearchParams();
 
-  const [application, setApplication] = useState<JobApplication | null>(null);
-
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
+  const { data: application, loading, error, reload } = useFocusedResource<JobApplication>(`${API_BASE_URL}/api/JobApplications/${id}`);
   const imageUrl = application?.imageUrl
-    ? `${API_BASE_URL}${application.imageUrl}`
+    ? /^https?:\/\//i.test(application.imageUrl) ? application.imageUrl : `${API_BASE_URL}${application.imageUrl}`
     : null;
 
-  useFocusEffect(
-    useCallback(() => {
-      const loadApplication = async () => {
-        try {
-          setLoading(true);
-
-          const response = await fetch(`${API_BASE_URL}/api/JobApplications`);
-
-          if (!response.ok) {
-            throw new Error("Kunde inte hämta jobbanssökningar");
-          }
-
-          const data: JobApplication[] = await response.json();
-
-          const selectedApplication = data.find(
-            (application) => application.id === Number(id),
-          );
-
-          if (!selectedApplication) {
-            setError("Jobbansökan hittades inte");
-            return;
-          }
-
-          setApplication(selectedApplication);
-          setError("");
-        } catch {
-          setError("Kunde inte ansluta till backend");
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      loadApplication();
-    }, [id]),
-  );
+  async function deleteApplication() {
+    if (!application || deletingRef.current) return;
+    deletingRef.current = true;
+    setIsDeleting(true);
+    setDeleteError('');
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/JobApplications/${application.id}`, { method: 'DELETE' });
+      if (!response.ok) throw new Error(await readApiError(response, 'Kunde inte radera ansökan. Försök igen.'));
+      showSuccess('Jobbansökan har raderats.');
+      router.dismissTo('/');
+    } catch (error) {
+      setDeleteError(error instanceof Error && error.name !== 'TypeError' ? error.message : 'Kunde inte nå servern. Ansökan finns kvar, försök igen.');
+    } finally {
+      deletingRef.current = false;
+      setIsDeleting(false);
+    }
+  }
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <ScrollView contentContainerStyle={styles.content}>
-        {loading && <Text style={styles.message}>Laddar jobbansökan...</Text>}
+        {loading && <FeedbackPanel kind="loading" message="Laddar ansökan…" />}
 
-        {error && <Text style={styles.error}>{error}</Text>}
+        {!!error && <FeedbackPanel kind="error" message={error} onRetry={() => { void reload(); }} />}
 
-        {application && (
+        {application && !loading && !error && (
           <View style={styles.card}>
             <Text style={styles.company}>{application.company}</Text>
 
@@ -99,7 +88,7 @@ export default function ApplicationDetailsScreen() {
             <View style={styles.detail}>
               <Text style={styles.label}>Status</Text>
 
-              <Text style={styles.value}>{application.status}</Text>
+              <StatusBadge status={application.status} />
             </View>
 
             {application.dateApplied && (
@@ -109,7 +98,7 @@ export default function ApplicationDetailsScreen() {
               </View>
             )}
 
-            {application.notes && (
+            {!!application.notes && (
               <View style={styles.detail}>
                 <Text style={styles.label}>Anteckningar</Text>
 
@@ -119,6 +108,7 @@ export default function ApplicationDetailsScreen() {
             <Pressable
               accessibilityRole="button"
               style={styles.editButton}
+              disabled={isDeleting || confirmDelete}
               onPress={() =>
                 router.push({
                   pathname: "/application/edit",
@@ -130,88 +120,28 @@ export default function ApplicationDetailsScreen() {
             >
               <Text style={styles.editButtonText}>Redigera</Text>
             </Pressable>
+            {confirmDelete ? (
+              <View style={styles.confirmation} accessibilityRole="alert">
+                <Text style={styles.title}>Radera ansökan?</Text>
+                <Text style={styles.text}>Ansökan hos {application.company} tas bort permanent.</Text>
+                {!!deleteError && <FeedbackPanel kind="error" message={deleteError} />}
+                <Pressable accessibilityRole="button" onPress={deleteApplication} disabled={isDeleting}
+                  accessibilityState={{ disabled: isDeleting, busy: isDeleting }}
+                  style={[styles.dangerButton, isDeleting && styles.disabledButton]}>
+                  <Text style={styles.dangerButtonText}>{isDeleting ? 'Raderar…' : 'Ja, radera ansökan'}</Text>
+                </Pressable>
+                <Pressable accessibilityRole="button" disabled={isDeleting} onPress={() => { setConfirmDelete(false); setDeleteError(''); }} style={styles.secondaryButton}>
+                  <Text style={styles.imageButtonText}>Avbryt</Text>
+                </Pressable>
+              </View>
+            ) : (
+              <Pressable accessibilityRole="button" onPress={() => setConfirmDelete(true)} style={styles.dangerButton}>
+                <Text style={styles.dangerButtonText}>Radera ansökan</Text>
+              </Pressable>
+            )}
           </View>
         )}
       </ScrollView>
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f3f6fb",
-  },
-
-  content: {
-    padding: 20,
-  },
-
-  card: {
-    backgroundColor: "#ffffff",
-    padding: 22,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-  },
-
-  company: {
-    fontSize: 26,
-    fontWeight: "700",
-    color: "#1d2a44",
-  },
-
-  position: {
-    fontSize: 17,
-    color: "#64748b",
-    marginTop: 6,
-    marginBottom: 24,
-  },
-
-  detail: {
-    marginBottom: 18,
-  },
-
-  label: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#94a3b8",
-    textTransform: "uppercase",
-  },
-
-  value: {
-    fontSize: 16,
-    color: "#334155",
-    marginTop: 5,
-  },
-
-  message: {
-    fontSize: 16,
-    color: "#475569",
-  },
-
-  error: {
-    fontSize: 16,
-    color: "#b91c1c",
-  },
-  image: {
-    width: "100%",
-    height: 200,
-    borderRadius: 14,
-    marginBottom: 24,
-    resizeMode: "cover",
-  },
-  editButton: {
-    backgroundColor: "#1d2a44",
-    paddingVertical: 13,
-    borderRadius: 12,
-    alignItems: "center",
-    marginTop: 8,
-  },
-
-  editButtonText: {
-    color: "#ffffff",
-    fontSize: 15,
-    fontWeight: "700",
-  },
-});

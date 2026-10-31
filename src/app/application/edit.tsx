@@ -1,12 +1,17 @@
+import { StatusPicker } from "@/components/status-badge";
+import { ApplicationImageField } from "@/components/application-image-field";
+import { useApplicationImage } from "@/hooks/use-application-image";
+import { useSuccessFeedback } from "@/components/feedback-provider";
+import { readApiError } from "@/utils/api-error";
+import { useApplicationStyles } from "@/hooks/use-application-styles";
+import { FeedbackPanel } from "@/components/feedback-panel";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   View,
@@ -27,6 +32,10 @@ type JobApplication = {
 };
 
 export default function EditApplicationScreen() {
+  const styles = useApplicationStyles();
+  const showSuccess = useSuccessFeedback();
+  const image = useApplicationImage();
+  const { resetImage } = image;
   const { id } = useLocalSearchParams();
   const router = useRouter();
 
@@ -41,21 +50,23 @@ export default function EditApplicationScreen() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [reloadToken, setReloadToken] = useState(0);
 
   useEffect(() => {
+    let active = true;
     const loadApplication = async () => {
+      setLoading(true);
+      setError("");
+      setApplication(null);
       try {
-        const response = await fetch(`${API_BASE_URL}/api/JobApplications`);
+        const response = await fetch(`${API_BASE_URL}/api/JobApplications/${id}`);
 
         if (!response.ok) {
           throw new Error();
         }
 
-        const data: JobApplication[] = await response.json();
-
-        const selectedApplication = data.find(
-          (application) => application.id === Number(id),
-        );
+        const selectedApplication: JobApplication = await response.json();
+        if (!active) return;
 
         if (!selectedApplication) {
           setError("Jobbansökan hittades inte");
@@ -68,32 +79,29 @@ export default function EditApplicationScreen() {
         setStatus(selectedApplication.status);
         setDateApplied(selectedApplication.dateApplied ?? "");
         setNotes(selectedApplication.notes ?? "");
+        resetImage(selectedApplication.imageUrl);
 
         setError("");
       } catch {
-        setError("Kunde inte ansluta till backend");
+        if (active) setError("Kunde inte hämta ansökan. Kontrollera anslutningen och försök igen.");
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     };
     loadApplication();
-  }, [id]);
+    return () => { active = false; };
+  }, [id, reloadToken, resetImage]);
 
   const [isSaving, setIsSaving] = useState(false);
   const savingRef = useRef(false);
 
   const handleSave = async () => {
-    if (savingRef.current) return;
+    if (savingRef.current || image.isPicking) return;
     if (!company.trim() || !position.trim() || !location.trim()) {
       setError("Företag, tjänst och plats måste fyllas i.");
       return;
     }
-    if (status !== "Intresserad" && !dateApplied) {
-      setError("Fyll i ansökningsdatum.");
-      return;
-    }
-
-    if (status !== "Intresserad" && !/^\d{4}-\d{2}-\d{2}$/.test(dateApplied)) {
+    if (status !== "Intresserad" && dateApplied && !/^\d{4}-\d{2}-\d{2}$/.test(dateApplied)) {
       setError("Ange datum som YYYY-MM-DD.");
       return;
     }
@@ -102,6 +110,7 @@ export default function EditApplicationScreen() {
     setIsSaving(true);
     setError("");
     try {
+      const imageUrl = await image.uploadImage();
       const response = await fetch(
         `${API_BASE_URL}/api/JobApplications/${id}`,
         {
@@ -115,21 +124,21 @@ export default function EditApplicationScreen() {
             position: position.trim(),
             location: location.trim(),
             status,
-            dateApplied: status === "Intresserad" ? null : dateApplied,
+            dateApplied: status === "Intresserad" ? null : dateApplied || null,
             notes: notes.trim(),
-            imageUrl: application?.imageUrl ?? null, // Preserve the existing image URL if available
+            imageUrl,
           }),
         },
       );
 
       if (!response.ok) {
-        throw new Error();
+        throw new Error(await readApiError(response, "Kunde inte spara ändringarna."));
       }
 
-      Alert.alert("Sparat", "Ändringarna har sparats.");
+      showSuccess("Ändringarna har sparats.");
       router.back();
-    } catch {
-      setError("Kunde inte spara ändringar");
+    } catch (error) {
+      setError(error instanceof Error && error.name !== 'TypeError' ? error.message : "Kunde inte nå servern. Dina uppgifter finns kvar, försök igen.");
     } finally {
       savingRef.current = false;
       setIsSaving(false);
@@ -137,7 +146,7 @@ export default function EditApplicationScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <KeyboardAvoidingView
         style={styles.keyboardView}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -148,19 +157,22 @@ export default function EditApplicationScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.card}>
-            <Text style={styles.title}>Redigera jobbansökan</Text>
+            <Text style={styles.title} accessibilityRole="header">Redigera jobbansökan</Text>
 
-            {loading && <Text style={styles.text}>Laddar ansökan...</Text>}
+            {loading && <FeedbackPanel kind="loading" message="Laddar ansökan…" />}
 
-            {error && <Text style={styles.error}>{error}</Text>}
+            {!!error && <FeedbackPanel kind="error" message={error} onRetry={!application && !loading ? () => setReloadToken(value => value + 1) : undefined} />}
 
             {application && (
               <>
                 <Text style={styles.label}>Företag</Text>
 
                 <TextInput
+                  placeholderTextColor={styles.label.color}
                   editable={!isSaving}
                   style={styles.input}
+                  accessibilityLabel="Företag"
+                  maxLength={200}
                   value={company}
                   onChangeText={setCompany}
                 />
@@ -168,8 +180,11 @@ export default function EditApplicationScreen() {
                 <Text style={styles.label}>Tjänst</Text>
 
                 <TextInput
+                  placeholderTextColor={styles.label.color}
                   editable={!isSaving}
                   style={styles.input}
+                  accessibilityLabel="Tjänst"
+                  maxLength={200}
                   value={position}
                   onChangeText={setPosition}
                 />
@@ -177,43 +192,29 @@ export default function EditApplicationScreen() {
                 <Text style={styles.label}>Plats</Text>
 
                 <TextInput
+                  placeholderTextColor={styles.label.color}
                   editable={!isSaving}
                   style={styles.input}
+                  accessibilityLabel="Plats"
+                  maxLength={200}
                   value={location}
                   onChangeText={setLocation}
                 />
 
                 <Text style={styles.label}>Status</Text>
 
-                <View style={styles.statusContainer}>
-                  {[
-                    "Ansökt",
-                    "Intresserad",
-                    "Intervju",
-                    "Erbjudande",
-                    "Avslag",
-                  ].map((statusOption) => (
-                    <Text
-                      key={statusOption}
-                      style={[
-                        styles.statusOption,
-                        status === statusOption && styles.statusOptionActive,
-                      ]}
-                      onPress={() => { if (!savingRef.current) setStatus(statusOption); }}
-                    >
-                      {statusOption}
-                    </Text>
-                  ))}
-                </View>
+                <StatusPicker value={status} onChange={setStatus} disabled={isSaving} />
 
                 {status !== "Intresserad" && (
                   <>
-                    <Text style={styles.label}>Ansökningsdatum</Text>
+                    <Text style={styles.label}>Ansökningsdatum (valfritt)</Text>
 
                     <TextInput
+                      placeholderTextColor={styles.label.color}
                       editable={!isSaving}
                       style={styles.input}
                       placeholder="YYYY-MM-DD"
+                      accessibilityLabel="Ansökningsdatum, YYYY-MM-DD"
                       value={dateApplied}
                       onChangeText={setDateApplied}
                     />
@@ -223,21 +224,26 @@ export default function EditApplicationScreen() {
                 <Text style={styles.label}>Anteckningar</Text>
 
                 <TextInput
+                  placeholderTextColor={styles.label.color}
                   editable={!isSaving}
                   style={[styles.input, styles.notesInput]}
                   placeholder="Skriv anteckningar..."
+                  accessibilityLabel="Anteckningar"
+                  maxLength={5000}
                   value={notes}
                   onChangeText={setNotes}
                   multiline
                   numberOfLines={4}
                 />
 
+                <ApplicationImageField image={image} disabled={isSaving} editing />
+
                 <Pressable
                   style={[styles.saveButton, isSaving && styles.disabledButton]}
                   onPress={handleSave}
-                  disabled={isSaving}
+                  disabled={isSaving || image.isPicking}
                   accessibilityRole="button"
-                  accessibilityState={{ disabled: isSaving, busy: isSaving }}
+                  accessibilityState={{ disabled: isSaving || image.isPicking, busy: isSaving }}
                 >
                   <Text style={styles.saveButtonText}>
                     {isSaving ? "Sparar..." : "Spara ändringar"}
@@ -251,108 +257,3 @@ export default function EditApplicationScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f3f6fb",
-    padding: 16,
-  },
-
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 8,
-    padding: 16,
-  },
-
-  title: {
-    fontSize: 26,
-    lineHeight: 34,
-    fontWeight: "700",
-    color: "#1d2a44",
-    marginBottom: 10,
-  },
-
-  text: {
-    fontSize: 16,
-    color: "#333",
-  },
-  label: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: "#94a3b8",
-    marginTop: 16,
-    textTransform: "uppercase",
-  },
-
-  value: {
-    fontSize: 16,
-    color: "#334155",
-    marginTop: 5,
-  },
-
-  error: {
-    color: "#b91c1c",
-    fontSize: 16,
-  },
-
-  input: {
-    borderWidth: 1,
-    borderColor: "#dbe3ee",
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-    backgroundColor: "#ffffff",
-    color: "#1d2a44",
-    marginTop: 6,
-  },
-
-  statusContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-    marginTop: 8,
-  },
-
-  statusOption: {
-    backgroundColor: "#e8eef7",
-    color: "#1d2a44",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    fontSize: 13,
-    fontWeight: "600",
-  },
-
-  statusOptionActive: {
-    backgroundColor: "#1d2a44",
-    color: "#ffffff",
-    borderColor: "#1d2a44",
-  },
-  notesInput: {
-    height: 100,
-    textAlignVertical: "top",
-  },
-  saveButton: {
-    backgroundColor: "#1d2a44",
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: "center",
-    marginTop: 24,
-  },
-  disabledButton: {
-    opacity: 0.65,
-  },
-  saveButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "700",
-  },
-  keyboardView: {
-    flex: 1,
-  },
-  scrollContent: {
-    paddingBottom: 40,
-  },
-});

@@ -1,17 +1,19 @@
-import { File } from "expo-file-system";
+import { ApplicationImageField } from "@/components/application-image-field";
+import { useApplicationImage } from "@/hooks/use-application-image";
+import { StatusPicker } from "@/components/status-badge";
+import { useSuccessFeedback } from "@/components/feedback-provider";
+import { readApiError } from "@/utils/api-error";
+import { useApplicationStyles } from "@/hooks/use-application-styles";
+import { FeedbackPanel } from "@/components/feedback-panel";
 import { fetch as expoFetch } from "expo/fetch";
 
-import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import {
-  Alert,
-  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   View,
@@ -21,74 +23,29 @@ import { SafeAreaView } from "react-native-safe-area-context";
 const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 export default function NewApplicationScreen() {
+  const styles = useApplicationStyles();
+  const showSuccess = useSuccessFeedback();
   const [company, setCompany] = useState("");
   const [position, setPosition] = useState("");
   const [location, setLocation] = useState("");
   const [status, setStatus] = useState("Ansökt");
   const [dateApplied, setDateApplied] = useState("");
   const [dateError, setDateError] = useState("");
+  const [error, setError] = useState("");
   const [notes, setNotes] = useState("");
-  const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
-
-  const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ["images"],
-      allowsEditing: true,
-      quality: 1,
-    });
-    if (!result.canceled) {
-      setImage(result.assets[0]);
-    }
-  };
-
+  const image = useApplicationImage();
   const router = useRouter();
-
-  const uploadImage = async () => {
-    if (!image) {
-      return null;
-    }
-
-    const file = new File(image.uri);
-
-    const formData = new FormData();
-    formData.append("file", file);
-
-    const response = await expoFetch(
-      `${API_BASE_URL}/api/JobApplications/uploadimage`,
-      {
-        method: "POST",
-        body: formData,
-      },
-    );
-
-    const responseText = await response.text();
-
-    if (!response.ok) {
-      throw new Error("Kunde inte ladda upp bilden.");
-    }
-
-    const data = JSON.parse(responseText);
-
-    return data.imageUrl;
-  };
 
   const [isSaving, setIsSaving] = useState(false);
   const savingRef = useRef(false);
 
   const handleSave = async () => {
-    if (savingRef.current) return;
+    if (savingRef.current || image.isPicking) return;
     if (!company.trim() || !position.trim() || !location.trim()) {
-      Alert.alert(
-        "Saknade uppgifter",
-        "Företag, Tjänst och Plats måste fyllas i.",
-      );
+      setError("Fyll i företag, tjänst och plats.");
       return;
     }
 
-    if (status !== "Intresserad" && !dateApplied) {
-      Alert.alert("Saknat datum", " Fyll i ansökningsdatum.");
-      return;
-    }
     if (status !== "Intresserad" && dateError) {
       return;
     }
@@ -96,8 +53,9 @@ export default function NewApplicationScreen() {
     // Send the POST request to create a new job application
     savingRef.current = true;
     setIsSaving(true);
+    setError("");
     try {
-      const uploadImageUrl = await uploadImage();
+      const uploadImageUrl = await image.uploadImage();
       const response = await expoFetch(`${API_BASE_URL}/api/JobApplications`, {
         method: "POST",
         headers: {
@@ -108,7 +66,7 @@ export default function NewApplicationScreen() {
           position: position.trim(),
           location: location.trim(),
           status,
-          dateApplied: status === "Intresserad" ? null : dateApplied,
+          dateApplied: status === "Intresserad" ? null : dateApplied || null,
 
           notes: notes.trim(),
           imageUrl: uploadImageUrl,
@@ -116,15 +74,13 @@ export default function NewApplicationScreen() {
       });
 
       if (!response.ok) {
-        throw new Error();
+        throw new Error(await readApiError(response, "Kunde inte spara ansökan."));
       }
-      Alert.alert("Sparat", "Jobbansökan har skapats.");
+      showSuccess("Jobbansökan har lagts till.");
 
       router.replace("/");
     } catch (error) {
-      console.log("SAVE ERROR:", error);
-
-      Alert.alert("Fel", "Kunde inte spara ansökan.");
+      setError(error instanceof Error && error.name !== 'TypeError' ? error.message : "Kunde inte nå servern. Dina uppgifter finns kvar, försök igen.");
     } finally {
       savingRef.current = false;
       setIsSaving(false);
@@ -132,7 +88,7 @@ export default function NewApplicationScreen() {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['left', 'right', 'bottom']}>
       <KeyboardAvoidingView
         style={styles.keyboardView}
         behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -143,7 +99,8 @@ export default function NewApplicationScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <View style={styles.card}>
-            <Text style={styles.title}>Ny jobbansökan</Text>
+            <Text style={styles.title} accessibilityRole="header">Ny jobbansökan</Text>
+            {!!error && <FeedbackPanel kind="error" message={error} />}
 
             <Text style={styles.text}>
               Fyll i formuläret för att skapa en ny jobbansökan.
@@ -152,61 +109,53 @@ export default function NewApplicationScreen() {
             <Text style={styles.label}>Företag</Text>
 
             <TextInput
+              placeholderTextColor={styles.label.color}
               editable={!isSaving}
               style={styles.input}
               placeholder="Skriv företagets namn"
+              accessibilityLabel="Företag"
+              maxLength={200}
               value={company}
               onChangeText={setCompany}
             />
             <Text style={styles.label}>Tjänst</Text>
 
             <TextInput
+              placeholderTextColor={styles.label.color}
               editable={!isSaving}
               style={styles.input}
               placeholder="Skriv tjänstens namn"
+              accessibilityLabel="Tjänst"
+              maxLength={200}
               value={position}
               onChangeText={setPosition}
             />
             <Text style={styles.label}>Plats</Text>
 
             <TextInput
+              placeholderTextColor={styles.label.color}
               editable={!isSaving}
               style={styles.input}
               placeholder="Skriv plats"
+              accessibilityLabel="Plats"
+              maxLength={200}
               value={location}
               onChangeText={setLocation}
             />
             <Text style={styles.label}>Status</Text>
 
-            <View style={styles.statusContainer}>
-              {[
-                "Ansökt",
-                "Intresserad",
-                "Intervju",
-                "Erbjudande",
-                "Avslag",
-              ].map((statusOption) => (
-                <Text
-                  key={statusOption}
-                  style={[
-                    styles.statusOption,
-                    status === statusOption && styles.statusOptionActive,
-                  ]}
-                  onPress={() => { if (!savingRef.current) setStatus(statusOption); }}
-                >
-                  {statusOption}
-                </Text>
-              ))}
-            </View>
+            <StatusPicker value={status} onChange={setStatus} disabled={isSaving} />
 
             {status !== "Intresserad" && (
               <>
-                <Text style={styles.label}>Ansökningsdatum</Text>
+                <Text style={styles.label}>Ansökningsdatum (valfritt)</Text>
 
                 <TextInput
+                  placeholderTextColor={styles.label.color}
                   editable={!isSaving}
                   style={[styles.input, dateError ? styles.inputError : null]}
                   placeholder="YYYY-MM-DD"
+                  accessibilityLabel="Ansökningsdatum, YYYY-MM-DD"
                   value={dateApplied}
                   maxLength={10}
                   onChangeText={(value) => {
@@ -243,37 +192,32 @@ export default function NewApplicationScreen() {
                   }}
                 />
 
-                {dateError && <Text style={styles.errorText}>{dateError}</Text>}
+                {!!dateError && <Text style={styles.errorText} accessibilityRole="alert">{dateError}</Text>}
               </>
             )}
 
             <Text style={styles.label}>Anteckningar</Text>
 
             <TextInput
+              placeholderTextColor={styles.label.color}
               editable={!isSaving}
               style={[styles.input, styles.notesInput]}
               placeholder="Skriv anteckningar..."
+              accessibilityLabel="Anteckningar"
+              maxLength={5000}
               value={notes}
               onChangeText={setNotes}
               multiline
               numberOfLines={4}
             />
-            <Text style={styles.label}>Bild</Text>
-
-            <Pressable style={styles.imageButton} onPress={pickImage} disabled={isSaving}>
-              <Text style={styles.imageButtonText}>Välj bild</Text>
-            </Pressable>
-
-            {image && (
-              <Image source={{ uri: image.uri }} style={styles.imagePreview} />
-            )}
+            <ApplicationImageField image={image} disabled={isSaving} />
 
             <Pressable
               style={[styles.saveButton, isSaving && styles.disabledButton]}
               onPress={handleSave}
-              disabled={isSaving}
+              disabled={isSaving || image.isPicking}
               accessibilityRole="button"
-              accessibilityState={{ disabled: isSaving, busy: isSaving }}
+              accessibilityState={{ disabled: isSaving || image.isPicking, busy: isSaving }}
             >
               <Text style={styles.saveButtonText}>{isSaving ? "Sparar..." : "Spara"}</Text>
             </Pressable>
@@ -283,127 +227,3 @@ export default function NewApplicationScreen() {
     </SafeAreaView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#f3f6fb",
-    padding: 20,
-  },
-  keyboardView: {
-    flex: 1,
-  },
-
-  scrollContent: {
-    paddingBottom: 20,
-  },
-
-  card: {
-    backgroundColor: "#fff",
-    padding: 22,
-    borderRadius: 18,
-  },
-
-  title: {
-    fontSize: 26,
-    lineHeight: 34,
-    fontWeight: "700",
-    color: "#333",
-    marginBottom: 10,
-  },
-
-  text: {
-    fontSize: 16,
-    color: "#666",
-  },
-
-  label: {
-    fontSize: 14,
-    fontWeight: "600",
-    color: "#334155",
-    marginTop: 24,
-    marginBottom: 8,
-  },
-
-  input: {
-    borderWidth: 1,
-    borderColor: "#dbe3ee",
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-    backgroundColor: "#ffffff",
-    color: "#1d2a44",
-  },
-  inputError: {
-    borderColor: "#b91c1c",
-  },
-
-  errorText: {
-    color: "#b91c1c",
-    fontSize: 13,
-    marginTop: 6,
-  },
-
-  statusContainer: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 8,
-  },
-
-  statusOption: {
-    backgroundColor: "#e8eef7",
-    color: "#1d2a44",
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    fontSize: 13,
-    fontWeight: "600",
-  },
-
-  statusOptionActive: {
-    backgroundColor: "#1d2a44",
-    color: "#ffffff",
-  },
-
-  notesInput: {
-    minHeight: 100,
-    textAlignVertical: "top",
-  },
-  saveButton: {
-    backgroundColor: "#1d2a44",
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: "center",
-    marginTop: 24,
-  },
-  disabledButton: {
-    opacity: 0.65,
-  },
-  saveButtonText: {
-    color: "#ffffff",
-    fontSize: 16,
-    fontWeight: "600",
-  },
-  imageButton: {
-    backgroundColor: "#e8eef7",
-    paddingVertical: 12,
-    borderRadius: 12,
-    alignItems: "center",
-    marginTop: 4,
-  },
-
-  imageButtonText: {
-    color: "#1d2a44",
-    fontSize: 15,
-    fontWeight: "600",
-  },
-
-  imagePreview: {
-    width: "100%",
-    height: 200,
-    borderRadius: 14,
-    marginTop: 12,
-    resizeMode: "cover",
-  },
-});

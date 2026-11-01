@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { AppGlyph } from '@/components/app-glyph';
 import { useJobTrackTheme } from '@/hooks/use-jobtrack-theme';
 
-export function WorkspaceNavigation({ current }: { current: 'overview' | 'applications' | 'statistics' }) {
+export function WorkspaceNavigation({ current }: { current: 'overview' | 'applications' | 'statistics' | null }) {
   const theme = useJobTrackTheme();
   return <SafeAreaView edges={['bottom']} style={{ backgroundColor: theme.surface, borderTopWidth: 1, borderColor: theme.line }}>
     <View style={styles.navigation}>

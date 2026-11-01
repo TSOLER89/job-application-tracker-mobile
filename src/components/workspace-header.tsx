@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '@/components/auth-provider';
 import { FeedbackPanel } from '@/components/feedback-panel';
@@ -32,6 +33,7 @@ export function WorkspaceHeader() {
       <View style={styles.identity}>
         <View style={[styles.avatar, { backgroundColor: theme.soft }]}><Text style={{ color: theme.accent, fontSize: 11, fontWeight: '700' }}>{auth.user?.email.charAt(0).toUpperCase()}</Text></View>
         <Text style={[styles.account, { color: theme.muted }]}>Inloggad som {auth.user?.email}</Text>
+        <Link href="/email-accounts" replace asChild><Pressable accessibilityRole="link" style={{ minHeight: 44, justifyContent: 'center', paddingLeft: 8 }}><Text style={{ color: theme.accent, fontSize: 11, fontWeight: '600' }}>Mejlkonton</Text></Pressable></Link>
       </View>
     </View>
     {!!error && <FeedbackPanel kind="error" message={error} />}

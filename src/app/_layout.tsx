@@ -32,6 +32,7 @@ function RootNavigation() {
             <Stack.Screen name="index" options={{ headerShown: false }} />
             <Stack.Screen name="applications" options={{ headerShown: false }} />
             <Stack.Screen name="statistics" options={{ headerShown: false }} />
+            <Stack.Screen name="email-accounts" options={{ headerShown: false }} />
             <Stack.Screen name="application/new" options={{ title: 'Ny ansökan' }} />
             <Stack.Screen name="application/[id]" options={{ title: 'Jobbansökan' }} />
             <Stack.Screen name="application/edit" options={{ title: 'Redigera' }} />

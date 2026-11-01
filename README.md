@@ -192,6 +192,12 @@ Kontrollera före en demo på en fysisk telefon: ljust och mörkt läge, större
 
 ## Statistik på startsidan
 
+Översikten visar statusräknare, **Behöver din uppmärksamhet** (dagens och passerade datum, äldst först), **Kommande händelser** (framtida datum, närmast först) och därefter månadsdiagrammet. Varje lista visar först fem händelser och kan utökas. Endast deadlines för intresserade jobb och uppföljningar för ansökta jobb/intervjuer tas med. Avslag, erbjudanden och ogiltiga eller saknade datum ger inga händelser.
+
+Tryck på en händelse för att öppna rätt ansökans detaljsida. Jobbansökningslistan ligger kvar på sin separata sida. Grupperna uppdateras när dagen byts eller du återvänder till översikten. Uppgifterna hämtas via kontots befintliga API; ingen ny databas-migration behövs.
+
+Testa grupperingen med `node --experimental-strip-types --test tests/upcoming-events.test.mjs`.
+
 Om ansökningsdatum är ifyllt får uppföljningsdatum inte ligga före det. Formuläret visar ett fel före sparning och behåller dina uppgifter. Samma dag eller senare tillåts, även efter sista ansökningsdag. Jämförelsen görs inte för intresserade jobb, som saknar sparat ansökningsdatum.
 
 I listan och på detaljsidan visas datummarkeringar: deadlines för **Intresserad**, uppföljningar för **Ansökt** och **Intervju**. Datum inom tre dagar markeras, och förfallna datum samt dagens datum får tydligare färg och text. **Erbjudande** och **Avslag** visar sparade datum utan aktiva uppmaningar. Töm eller flytta uppföljningsdatumet när uppföljningen är klar. Markeringarna uppdateras vid midnatt och när du återvänder till appen eller sidan.

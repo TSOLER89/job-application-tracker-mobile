@@ -20,14 +20,14 @@ export function WorkspaceHeader({ current }: { current: 'overview' | 'applicatio
   }
   return <>
     <View style={styles.hero}>
-      <Text style={styles.brand} accessibilityRole="header">JobTrack</Text>
+      <View style={styles.brandRow}>
+        <Text style={styles.brand} accessibilityRole="header">JobTrack</Text>
+        <Pressable accessibilityRole="button" disabled={isLoggingOut} onPress={logout} style={styles.logout}>
+          <Text style={styles.logoutText}>{isLoggingOut ? 'Loggar ut…' : 'Logga ut'}</Text>
+        </Pressable>
+      </View>
       <Text style={styles.subtitle}>Dina ansökningar. Samlade på ett ställe.</Text>
-    </View>
-    <View style={styles.account}>
-      <Text style={{ color: theme.muted, flexShrink: 1 }}>{auth.user?.email}</Text>
-      <Pressable accessibilityRole="button" disabled={isLoggingOut} onPress={logout} style={[styles.logout, { backgroundColor: theme.soft }]}>
-        <Text style={{ color: theme.ink, fontWeight: '600' }}>{isLoggingOut ? 'Loggar ut…' : 'Logga ut'}</Text>
-      </Pressable>
+      <Text style={styles.account}>Inloggad som {auth.user?.email}</Text>
     </View>
     {!!error && <FeedbackPanel kind="error" message={error} />}
     <View style={[styles.navigation, { borderColor: theme.line }]}>
@@ -44,9 +44,11 @@ export function WorkspaceHeader({ current }: { current: 'overview' | 'applicatio
 const styles = StyleSheet.create({
   hero: { backgroundColor: '#172554', borderBottomWidth: 3, borderBottomColor: '#2563eb', borderRadius: 14, padding: 16, marginBottom: 12 },
   brand: { fontSize: 27, lineHeight: 32, fontWeight: '700', color: '#ffffff' },
+  brandRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
   subtitle: { color: '#dbeafe', fontSize: 12, lineHeight: 18, marginTop: 4 },
-  account: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 12 },
-  logout: { padding: 12, minHeight: 44, borderRadius: 10 },
+  account: { color: '#bfdbfe', fontSize: 11, lineHeight: 17, marginTop: 10 },
+  logout: { paddingHorizontal: 12, paddingVertical: 10, minHeight: 44, justifyContent: 'center', borderRadius: 10, backgroundColor: '#24366a', borderWidth: 1, borderColor: '#93b4e7' },
+  logoutText: { color: '#ffffff', fontSize: 13, fontWeight: '600' },
   navigation: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, borderBottomWidth: 1, paddingBottom: 12, marginBottom: 20 },
   link: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 10, paddingVertical: 12, borderRadius: 10 },
 });

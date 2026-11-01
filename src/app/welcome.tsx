@@ -33,10 +33,10 @@ export default function WelcomeScreen() {
   return <SafeAreaView style={styles.container}>
     <KeyboardAvoidingView style={styles.keyboardView} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <ScrollView contentContainerStyle={styles.scrollContent} keyboardShouldPersistTaps="handled">
-        <View style={{ backgroundColor: '#172554', borderRadius: 16, padding: 24, marginBottom: 24 }}>
-          <Text style={{ color: '#bfdbfe', fontSize: 11, lineHeight: 18, fontWeight: '700' }}>DIN KARRIÄR, ETT STEG I TAGET</Text>
+        <View style={{ backgroundColor: '#242b43', borderRadius: 22, padding: 26, marginBottom: 24 }}>
+          <Text style={{ color: '#f0c29e', fontSize: 11, lineHeight: 18, fontWeight: '700' }}>DIN KARRIÄR, ETT STEG I TAGET</Text>
           <Text style={{ color: '#ffffff', fontSize: 36, lineHeight: 46, fontWeight: '700', marginTop: 8 }}>JobTrack</Text>
-          <Text style={{ color: '#dbeafe', fontSize: 16, lineHeight: 25, marginTop: 12 }}>Dina ansökningar. Samlade på ett ställe.</Text>
+          <Text style={{ color: '#e2e0eb', fontSize: 16, lineHeight: 25, marginTop: 12 }}>Dina ansökningar. Samlade på ett ställe.</Text>
         </View>
         {!!auth.error && <FeedbackPanel kind="error" message={auth.error} onRetry={() => { void auth.restore(); }} />}
         <View style={styles.card}>

@@ -55,13 +55,13 @@ export function UpcomingEvents({ applications, today, loading, unavailable }: {
 
 const styles = StyleSheet.create({
   groups: { gap: 16, marginBottom: 24 },
-  panel: { borderWidth: 1, borderRadius: 14, padding: 18 },
+  panel: { borderWidth: 1, borderRadius: 20, padding: 18 },
   heading: { flexDirection: 'row', alignItems: 'center', gap: 12, justifyContent: 'space-between', marginBottom: 14 },
   title: { fontSize: 16, lineHeight: 23, fontWeight: '700', flexShrink: 1 },
   count: { borderWidth: 1, borderRadius: 20, paddingVertical: 3, paddingHorizontal: 9, fontSize: 12, fontWeight: '700' },
   empty: { fontSize: 13, lineHeight: 21, padding: 14, borderRadius: 10 },
   list: { gap: 12 },
-  event: { borderWidth: 1, borderLeftWidth: 3, borderRadius: 10, padding: 12, gap: 3 },
+  event: { borderWidth: 1, borderLeftWidth: 3, borderRadius: 13, padding: 14, gap: 3 },
   company: { fontSize: 15, fontWeight: '700' },
   small: { fontSize: 12, lineHeight: 18 },
   label: { fontSize: 13, lineHeight: 20, fontWeight: '600', marginTop: 5 },

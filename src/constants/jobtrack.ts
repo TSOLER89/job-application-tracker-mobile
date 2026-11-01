@@ -1,13 +1,13 @@
 // Keep the light palette and status colors aligned with the web application's CSS.
 export const JobTrackColors = {
   light: {
-    page: '#f3f6fb', surface: '#ffffff', ink: '#172554', muted: '#52627a',
-    line: '#dbe3ee', primary: '#2563eb', soft: '#eff4fb',
+    page: '#f6f4f1', surface: '#ffffff', ink: '#222a3b', muted: '#626878',
+    line: '#e4e1db', primary: '#9a4b2f', soft: '#f8eee7', accent: '#9a4b2f',
     error: '#991b1b', errorBackground: '#fef2f2', success: '#166534', successBackground: '#f0fdf4',
   },
   dark: {
-    page: '#0f172a', surface: '#1e293b', ink: '#f1f5f9', muted: '#cbd5e1',
-    line: '#475569', primary: '#2563eb', soft: '#334155',
+    page: '#141826', surface: '#202638', ink: '#f5f2ed', muted: '#c4c2cc',
+    line: '#3b4256', primary: '#9a4b2f', soft: '#303447', accent: '#f2b88d',
     error: '#fecaca', errorBackground: '#450a0a', success: '#bbf7d0', successBackground: '#052e16',
   },
 } as const;

@@ -53,7 +53,7 @@ export default function ApplicationDetailsScreen() {
       const response = await apiFetch(`${API_BASE_URL}/api/JobApplications/${application.id}`, { method: 'DELETE' });
       if (!response.ok) throw new Error(await readApiError(response, 'Kunde inte radera ansökan. Försök igen.'));
       showSuccess('Jobbansökan har raderats.');
-      router.dismissTo('/');
+      router.dismissTo('/applications');
     } catch (error) {
       setDeleteError(error instanceof Error && error.name !== 'TypeError' ? error.message : 'Kunde inte nå servern. Ansökan finns kvar, försök igen.');
     } finally {

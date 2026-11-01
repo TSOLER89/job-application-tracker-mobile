@@ -30,6 +30,7 @@ function RootNavigation() {
           </Stack.Protected>
           <Stack.Protected guard={!!user}>
             <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="applications" options={{ headerShown: false }} />
             <Stack.Screen name="application/new" options={{ title: 'Ny ansökan' }} />
             <Stack.Screen name="application/[id]" options={{ title: 'Jobbansökan' }} />
             <Stack.Screen name="application/edit" options={{ title: 'Redigera' }} />

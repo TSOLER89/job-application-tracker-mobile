@@ -77,7 +77,7 @@ export default function NewApplicationScreen() {
       }
       showSuccess("Jobbansökan har lagts till.");
 
-      router.replace("/");
+      router.replace("/applications");
     } catch (error) {
       setError(error instanceof Error && error.name !== 'TypeError' ? error.message : "Kunde inte nå servern. Dina uppgifter finns kvar, försök igen.");
     } finally {

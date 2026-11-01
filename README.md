@@ -192,7 +192,7 @@ Kontrollera före en demo på en fysisk telefon: ljust och mörkt läge, större
 
 ## Statistik på startsidan
 
-Översikten visar statusräknare, **Behöver din uppmärksamhet** (dagens och passerade datum, äldst först), **Kommande händelser** (framtida datum, närmast först) och därefter månadsdiagrammet. Varje lista visar först fem händelser och kan utökas. Endast deadlines för intresserade jobb och uppföljningar för ansökta jobb/intervjuer tas med. Avslag, erbjudanden och ogiltiga eller saknade datum ger inga händelser.
+Översikten visar fyra små räknare (totalt, ansökta, intervjuer och erbjudanden), **Behöver din uppmärksamhet** (dagens och passerade datum, äldst först) och **Kommande händelser** (framtida datum, närmast först). Varje lista visar först tre händelser och kan utökas. Endast deadlines för intresserade jobb och uppföljningar för ansökta jobb/intervjuer tas med. Avslag, erbjudanden och ogiltiga eller saknade datum ger inga händelser.
 
 Tryck på en händelse för att öppna rätt ansökans detaljsida. Jobbansökningslistan ligger kvar på sin separata sida. Grupperna uppdateras när dagen byts eller du återvänder till översikten. Uppgifterna hämtas via kontots befintliga API; ingen ny databas-migration behövs.
 
@@ -206,9 +206,9 @@ Testa reglerna med `node --experimental-strip-types --test tests/planning-notice
 
 När du skapar eller redigerar ett jobb kan du ange **Sista ansökningsdag** och **Uppföljningsdatum** som `YYYY-MM-DD`. Fälten är valfria och fungerar även för intresserade jobb. Töm ett fält och spara för att ta bort datumet. Sparade datum visas i listan och på detaljsidan. Backend behöver migrationen `AddApplicationPlanningDates`. Schemalagda notiser kommer i ett senare delsteg.
 
-Efter inloggning öppnas **Översikt** med statistik och antal. **Jobbansökningar** är en separat sida med lista och möjlighet att lägga till, visa, redigera och radera jobb. Växla med navigationen överst. Efter att en ny ansökan sparats eller en ansökan raderats visas listan igen.
+Efter inloggning öppnas den korta **Översikt**. **Jobbansökningar** är en separat sida med lista och möjlighet att lägga till, visa, redigera och radera jobb. **Statistik** är en egen skyddad sida för alla statusräknare och månadsdiagrammet. Växla med navigationen överst. Sidhuvudet och händelsekorten är kompaktare på mobilen. Efter att en ny ansökan sparats eller en ansökan raderats visas listan igen.
 
-Startsidan visar totalt antal jobb, alla fem nuvarande statusar och ett månadsdiagram för innevarande månad och fem månader bakåt. Diagrammet använder ansökningsdatum, även om status senare ändras. Intresserade jobb räknas inte som skickade ansökningar.
+Statistiksidan visar totalt antal jobb, alla fem nuvarande statusar och ett månadsdiagram för innevarande månad och fem månader bakåt. Diagrammet använder ansökningsdatum, även om status senare ändras. Intresserade jobb räknas inte som skickade ansökningar.
 
 Saknade eller ogiltiga datum samt framtida datum redovisas separat utanför diagrammet. Dessa jobb finns fortfarande med i statusräknarna. Statistiken uppdateras när startsidan åter får fokus efter att du skapat, redigerat eller raderat en ansökan. Den stöder ljust och mörkt tema och visar siffror tillsammans med diagrammets staplar.
 

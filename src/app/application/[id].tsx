@@ -3,6 +3,8 @@ import { useFocusedResource } from "@/hooks/use-focused-resource";
 import { useApplicationStyles } from "@/hooks/use-application-styles";
 import { FeedbackPanel } from "@/components/feedback-panel";
 import { StatusBadge } from "@/components/status-badge";
+import { useToday } from '@/hooks/use-today';
+import { PlanningNotices } from '@/components/planning-notices';
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { useSuccessFeedback } from "@/components/feedback-provider";
@@ -32,6 +34,7 @@ type JobApplication = {
 
 export default function ApplicationDetailsScreen() {
   const styles = useApplicationStyles();
+  const today = useToday();
   const router = useRouter();
   const showSuccess = useSuccessFeedback();
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -76,6 +79,7 @@ export default function ApplicationDetailsScreen() {
             <Text style={styles.company}>{application.company}</Text>
 
             <Text style={styles.position}>{application.position}</Text>
+            <PlanningNotices application={application} today={today} />
 
             {imageUrl && (
               <Image source={authenticatedImageSource(imageUrl)} style={styles.image} />

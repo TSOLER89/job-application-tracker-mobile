@@ -7,12 +7,16 @@ import { WorkspaceHeader } from '@/components/workspace-header';
 import { useFocusedResource } from '@/hooks/use-focused-resource';
 import { useJobTrackTheme } from '@/hooks/use-jobtrack-theme';
 import { API_BASE_URL } from '@/services/auth-client';
+import { useToday } from '@/hooks/use-today';
+import { PlanningNotices } from '@/components/planning-notices';
+import { planningNotices } from '@/utils/planning-notices';
 
 type JobApplication = { id: number; company: string; position: string; location: string; status: string; applicationDeadline: string | null; followUpDate: string | null };
 
 export default function ApplicationsScreen() {
   const router = useRouter();
   const theme = useJobTrackTheme();
+  const today = useToday();
   const { data, loading, error, reload } = useFocusedResource<JobApplication[]>(`${API_BASE_URL}/api/JobApplications`);
   const applications = data ?? [];
   const hasLoaded = data !== null;
@@ -30,7 +34,7 @@ export default function ApplicationsScreen() {
         {!!error && <FeedbackPanel kind="error" message={error + (hasLoaded ? ' Senast hämtade uppgifter visas.' : '')} onRetry={() => { void reload(); }} />}
         {hasLoaded && !loading && !error && applications.length === 0 && <FeedbackPanel message="Inga jobbansökningar ännu. Lägg till din första ansökan för att komma igång." />}
         {applications.map(application => (
-          <Pressable key={application.id} accessibilityRole="button" accessibilityLabel={`${application.company}, ${application.position}, ${application.status}. Visa detaljer.`}
+          <Pressable key={application.id} accessibilityRole="button" accessibilityLabel={`${application.company}, ${application.position}, ${application.status}${planningNotices(application, today).map(notice => ', ' + notice.label).join('')}. Visa detaljer.`}
             onPress={() => router.push({ pathname: '/application/[id]', params: { id: String(application.id) } })}
             style={({ pressed }) => [styles.card, { backgroundColor: theme.surface, borderColor: theme.line, opacity: pressed ? 0.75 : 1 }]}>
             <View style={styles.cardHeader}>
@@ -38,6 +42,7 @@ export default function ApplicationsScreen() {
               <StatusBadge status={application.status} />
             </View>
             <Text style={[styles.position, { color: theme.muted }]}>{application.position}</Text>
+            <PlanningNotices application={application} today={today} />
             {application.applicationDeadline && <Text style={[styles.position, { color: theme.muted }]}>Sista ansökningsdag: {application.applicationDeadline}</Text>}
             {application.followUpDate && <Text style={[styles.position, { color: theme.muted }]}>Uppföljning: {application.followUpDate}</Text>}
             <View style={[styles.cardFooter, { borderColor: theme.line }]}>

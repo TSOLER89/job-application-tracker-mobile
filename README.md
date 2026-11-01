@@ -192,6 +192,12 @@ Kontrollera före en demo på en fysisk telefon: ljust och mörkt läge, större
 
 ## Statistik på startsidan
 
+Om ansökningsdatum är ifyllt får uppföljningsdatum inte ligga före det. Formuläret visar ett fel före sparning och behåller dina uppgifter. Samma dag eller senare tillåts, även efter sista ansökningsdag. Jämförelsen görs inte för intresserade jobb, som saknar sparat ansökningsdatum.
+
+I listan och på detaljsidan visas datummarkeringar: deadlines för **Intresserad**, uppföljningar för **Ansökt** och **Intervju**. Datum inom tre dagar markeras, och förfallna datum samt dagens datum får tydligare färg och text. **Erbjudande** och **Avslag** visar sparade datum utan aktiva uppmaningar. Töm eller flytta uppföljningsdatumet när uppföljningen är klar. Markeringarna uppdateras vid midnatt och när du återvänder till appen eller sidan.
+
+Testa reglerna med `node --experimental-strip-types --test tests/planning-notices.test.mjs`. Det här är markeringar inne i appen; bakgrundsnotiser kommer senare.
+
 När du skapar eller redigerar ett jobb kan du ange **Sista ansökningsdag** och **Uppföljningsdatum** som `YYYY-MM-DD`. Fälten är valfria och fungerar även för intresserade jobb. Töm ett fält och spara för att ta bort datumet. Sparade datum visas i listan och på detaljsidan. Backend behöver migrationen `AddApplicationPlanningDates`. Schemalagda notiser kommer i ett senare delsteg.
 
 Efter inloggning öppnas **Översikt** med statistik och antal. **Jobbansökningar** är en separat sida med lista och möjlighet att lägga till, visa, redigera och radera jobb. Växla med navigationen överst. Efter att en ny ansökan sparats eller en ansökan raderats visas listan igen.

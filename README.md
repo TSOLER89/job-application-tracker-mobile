@@ -192,6 +192,8 @@ Kontrollera före en demo på en fysisk telefon: ljust och mörkt läge, större
 
 ## Statistik på startsidan
 
+När du skapar eller redigerar ett jobb kan du ange **Sista ansökningsdag** och **Uppföljningsdatum** som `YYYY-MM-DD`. Fälten är valfria och fungerar även för intresserade jobb. Töm ett fält och spara för att ta bort datumet. Sparade datum visas i listan och på detaljsidan. Backend behöver migrationen `AddApplicationPlanningDates`. Schemalagda notiser kommer i ett senare delsteg.
+
 Efter inloggning öppnas **Översikt** med statistik och antal. **Jobbansökningar** är en separat sida med lista och möjlighet att lägga till, visa, redigera och radera jobb. Växla med navigationen överst. Efter att en ny ansökan sparats eller en ansökan raderats visas listan igen.
 
 Startsidan visar totalt antal jobb, alla fem nuvarande statusar och ett månadsdiagram för innevarande månad och fem månader bakåt. Diagrammet använder ansökningsdatum, även om status senare ändras. Intresserade jobb räknas inte som skickade ansökningar.

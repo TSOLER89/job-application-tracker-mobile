@@ -190,6 +190,20 @@ Appen använder samma blå färgpalett och statusfärger som webben. Mobilens ba
 
 Kontrollera före en demo på en fysisk telefon: ljust och mörkt läge, större textstorlek, tangentbordet i formulären, sparfel med bevarade uppgifter och bekräftelsen efter en lyckad sparning.
 
+## Statistik på startsidan
+
+Efter inloggning öppnas **Översikt** med statistik och antal. **Jobbansökningar** är en separat sida med lista och möjlighet att lägga till, visa, redigera och radera jobb. Växla med navigationen överst. Efter att en ny ansökan sparats eller en ansökan raderats visas listan igen.
+
+Startsidan visar totalt antal jobb, alla fem nuvarande statusar och ett månadsdiagram för innevarande månad och fem månader bakåt. Diagrammet använder ansökningsdatum, även om status senare ändras. Intresserade jobb räknas inte som skickade ansökningar.
+
+Saknade eller ogiltiga datum samt framtida datum redovisas separat utanför diagrammet. Dessa jobb finns fortfarande med i statusräknarna. Statistiken uppdateras när startsidan åter får fokus efter att du skapat, redigerat eller raderat en ansökan. Den stöder ljust och mörkt tema och visar siffror tillsammans med diagrammets staplar.
+
+Kontrollera datumberäkningarna med Node.js 22.20 eller senare:
+
+```bash
+node --experimental-strip-types --test tests/application-statistics.test.mjs
+```
+
 ## Relaterade projekt
 
 Applikationen består av tre delar:

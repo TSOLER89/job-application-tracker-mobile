@@ -7,11 +7,14 @@ import { WorkspaceHeader } from '@/components/workspace-header';
 import { useFocusedResource } from '@/hooks/use-focused-resource';
 import { useJobTrackTheme } from '@/hooks/use-jobtrack-theme';
 import { API_BASE_URL } from '@/services/auth-client';
-import type { StatisticsApplication } from '@/utils/application-statistics';
+import type { EventApplication } from '@/utils/upcoming-events';
+import { UpcomingEvents } from '@/components/upcoming-events';
+import { useToday } from '@/hooks/use-today';
 
 export default function OverviewScreen() {
   const theme = useJobTrackTheme();
-  const { data, loading, error, reload } = useFocusedResource<StatisticsApplication[]>(`${API_BASE_URL}/api/JobApplications`);
+  const today = useToday();
+  const { data, loading, error, reload } = useFocusedResource<EventApplication[]>(`${API_BASE_URL}/api/JobApplications`);
   const hasLoaded = data !== null;
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: theme.page }} edges={['top', 'left', 'right']}>
@@ -26,7 +29,9 @@ export default function OverviewScreen() {
         </Link>
         {loading && <FeedbackPanel kind="loading" message={hasLoaded ? 'Uppdaterar statistik…' : 'Laddar din statistik…'} />}
         {!!error && <FeedbackPanel kind="error" message={error + (hasLoaded ? ' Senast hämtade uppgifter visas.' : '')} onRetry={() => { void reload(); }} />}
-        <ApplicationStatistics applications={data ?? []} loading={!hasLoaded} unavailable={!!error && !hasLoaded} />
+        <ApplicationStatistics applications={data ?? []} loading={!hasLoaded} unavailable={!!error && !hasLoaded}>
+          <UpcomingEvents applications={data ?? []} today={today} loading={!hasLoaded} unavailable={!!error && !hasLoaded} />
+        </ApplicationStatistics>
       </ScrollView>
     </SafeAreaView>
   );

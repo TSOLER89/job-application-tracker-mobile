@@ -176,7 +176,11 @@ Backend behöver den nya kontomigrationen (`dotnet ef database update`). Äldre 
 
 Välj ett nytt lösenord för ditt JobTrack-konto. Registreringen kopplar inte automatiskt Gmail eller skolans Outlook; mejlverifiering, lösenordsåterställning och mejlimport kommer i nästa etapper.
 
-Appen använder samma blå färgpalett och statusfärger som webben. Mobilens bakgrund, formulär och texter följer telefonens ljusa eller mörka läge.
+Appen använder samma midnattsblå grund och kopparfärgade accent och neutrala ytor som webben. Statusfärgerna har tydliga textetiketter. Mobilens bakgrund, formulär och texter följer telefonens ljusa eller mörka läge. Gemensamma ikoner ritas direkt med React Native-vyer och behöver inga nya externa bibliotek.
+
+Översikt, Jobbansökningar och Statistik har fast bottennavigation som ligger kvar när innehållet rullas. Konto och utloggning finns i det kompakta sidhuvudet. Plusknappen på översikten öppnar en ny ansökan direkt.
+
+Jobblistan kan sökas på företag, tjänst eller plats och filtreras efter status. Ett tomt sökresultat har **Rensa filter**. När en ny ansökan skapas från listan återställs filtren så att den nya posten kan visas. Dra ned för att uppdatera på telefonens översikt, jobblista och statistiksida. Kontrollera draggesten och större textstorlek på en fysisk telefon inför demo.
 
 - Statistik visas med `—` innan data har hämtats, i stället för missvisande nollor.
 - Laddning, tom lista och anslutningsfel har separata vyer. Vid anslutningsfel går det att försöka igen.
@@ -206,7 +210,7 @@ Testa reglerna med `node --experimental-strip-types --test tests/planning-notice
 
 När du skapar eller redigerar ett jobb kan du ange **Sista ansökningsdag** och **Uppföljningsdatum** som `YYYY-MM-DD`. Fälten är valfria och fungerar även för intresserade jobb. Töm ett fält och spara för att ta bort datumet. Sparade datum visas i listan och på detaljsidan. Backend behöver migrationen `AddApplicationPlanningDates`. Schemalagda notiser kommer i ett senare delsteg.
 
-Efter inloggning öppnas den korta **Översikt**. **Jobbansökningar** är en separat sida med lista och möjlighet att lägga till, visa, redigera och radera jobb. **Statistik** är en egen skyddad sida för alla statusräknare och månadsdiagrammet. Växla med navigationen överst. Sidhuvudet och händelsekorten är kompaktare på mobilen. Efter att en ny ansökan sparats eller en ansökan raderats visas listan igen.
+Efter inloggning öppnas den korta **Översikt**. **Jobbansökningar** är en separat sida med lista och möjlighet att lägga till, visa, redigera och radera jobb. **Statistik** är en egen skyddad sida för alla statusräknare och månadsdiagrammet. Växla med bottennavigationen. Sidhuvudet och händelsekorten är kompaktare på mobilen. Efter att en ny ansökan sparats eller en ansökan raderats visas listan igen.
 
 Statistiksidan visar totalt antal jobb, alla fem nuvarande statusar och ett månadsdiagram för innevarande månad och fem månader bakåt. Diagrammet använder ansökningsdatum, även om status senare ändras. Intresserade jobb räknas inte som skickade ansökningar.
 

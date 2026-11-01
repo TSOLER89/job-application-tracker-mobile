@@ -1,3 +1,4 @@
+import { apiFetch, API_BASE_URL } from '@/services/auth-client';
 import { ApplicationImageField } from "@/components/application-image-field";
 import { useApplicationImage } from "@/hooks/use-application-image";
 import { StatusPicker } from "@/components/status-badge";
@@ -5,7 +6,6 @@ import { useSuccessFeedback } from "@/components/feedback-provider";
 import { readApiError } from "@/utils/api-error";
 import { useApplicationStyles } from "@/hooks/use-application-styles";
 import { FeedbackPanel } from "@/components/feedback-panel";
-import { fetch as expoFetch } from "expo/fetch";
 
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
@@ -20,7 +20,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 export default function NewApplicationScreen() {
   const styles = useApplicationStyles();
@@ -56,7 +55,7 @@ export default function NewApplicationScreen() {
     setError("");
     try {
       const uploadImageUrl = await image.uploadImage();
-      const response = await expoFetch(`${API_BASE_URL}/api/JobApplications`, {
+      const response = await apiFetch(`${API_BASE_URL}/api/JobApplications`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

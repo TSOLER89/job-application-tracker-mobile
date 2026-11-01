@@ -1,3 +1,4 @@
+import { authenticatedImageSource } from '@/services/auth-client';
 import { Image, Pressable, Text, View } from 'react-native';
 import { useApplicationStyles } from '@/hooks/use-application-styles';
 import type { useApplicationImage } from '@/hooks/use-application-image';
@@ -13,7 +14,7 @@ export function ApplicationImageField({ image, disabled, editing = false }: {
       <Text style={styles.label}>Bild</Text>
       <Text style={styles.text}>JPEG, PNG eller WebP, högst 5 MiB.</Text>
       {!!image.error && <FeedbackPanel kind="error" message={image.error} />}
-      {image.previewUri && <Image source={{ uri: image.previewUri }} style={styles.imagePreview} accessibilityLabel="Förhandsvisning av ansökans bild" />}
+      {image.previewUri && <Image source={authenticatedImageSource(image.previewUri)} style={styles.imagePreview} accessibilityLabel="Förhandsvisning av ansökans bild" />}
       <Pressable accessibilityRole="button" style={[styles.imageButton, busy && styles.disabledButton]}
         disabled={busy} onPress={image.pickImage} accessibilityState={{ disabled: busy, busy: image.isPicking }}>
         <Text style={styles.imageButtonText}>{image.isPicking ? 'Öppnar bildbibliotek…' : image.previewUri ? 'Byt bild' : 'Välj bild'}</Text>

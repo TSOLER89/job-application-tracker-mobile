@@ -1,3 +1,4 @@
+import { apiFetch, API_BASE_URL, authenticatedImageSource } from '@/services/auth-client';
 import { useFocusedResource } from "@/hooks/use-focused-resource";
 import { useApplicationStyles } from "@/hooks/use-application-styles";
 import { FeedbackPanel } from "@/components/feedback-panel";
@@ -26,7 +27,6 @@ type JobApplication = {
   imageUrl: string | null;
 };
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 export default function ApplicationDetailsScreen() {
   const styles = useApplicationStyles();
@@ -50,7 +50,7 @@ export default function ApplicationDetailsScreen() {
     setIsDeleting(true);
     setDeleteError('');
     try {
-      const response = await fetch(`${API_BASE_URL}/api/JobApplications/${application.id}`, { method: 'DELETE' });
+      const response = await apiFetch(`${API_BASE_URL}/api/JobApplications/${application.id}`, { method: 'DELETE' });
       if (!response.ok) throw new Error(await readApiError(response, 'Kunde inte radera ansökan. Försök igen.'));
       showSuccess('Jobbansökan har raderats.');
       router.dismissTo('/');
@@ -76,7 +76,7 @@ export default function ApplicationDetailsScreen() {
             <Text style={styles.position}>{application.position}</Text>
 
             {imageUrl && (
-              <Image source={{ uri: imageUrl }} style={styles.image} />
+              <Image source={authenticatedImageSource(imageUrl)} style={styles.image} />
             )}
 
             <View style={styles.detail}>

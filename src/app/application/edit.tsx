@@ -1,3 +1,4 @@
+import { apiFetch, API_BASE_URL } from '@/services/auth-client';
 import { StatusPicker } from "@/components/status-badge";
 import { ApplicationImageField } from "@/components/application-image-field";
 import { useApplicationImage } from "@/hooks/use-application-image";
@@ -18,7 +19,6 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 type JobApplication = {
   id: number;
@@ -59,7 +59,7 @@ export default function EditApplicationScreen() {
       setError("");
       setApplication(null);
       try {
-        const response = await fetch(`${API_BASE_URL}/api/JobApplications/${id}`);
+        const response = await apiFetch(`${API_BASE_URL}/api/JobApplications/${id}`);
 
         if (!response.ok) {
           throw new Error();
@@ -111,7 +111,7 @@ export default function EditApplicationScreen() {
     setError("");
     try {
       const imageUrl = await image.uploadImage();
-      const response = await fetch(
+      const response = await apiFetch(
         `${API_BASE_URL}/api/JobApplications/${id}`,
         {
           method: "PUT",

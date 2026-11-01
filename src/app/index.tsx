@@ -1,4 +1,7 @@
 import { useFocusedResource } from '@/hooks/use-focused-resource';
+import { useAuth } from '@/components/auth-provider';
+import { API_BASE_URL } from '@/services/auth-client';
+import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -6,12 +9,21 @@ import { FeedbackPanel } from '@/components/feedback-panel';
 import { StatusBadge } from '@/components/status-badge';
 import { useJobTrackTheme } from '@/hooks/use-jobtrack-theme';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 type JobApplication = { id: number; company: string; position: string; location: string; status: string };
 
 export default function HomeScreen() {
   const router = useRouter();
   const theme = useJobTrackTheme();
+  const auth = useAuth();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [logoutError, setLogoutError] = useState('');
+  async function logout() {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    try { await auth.logout(); }
+    catch (error) { setLogoutError(error instanceof Error ? error.message : 'Kunde inte logga ut. Försök igen.'); }
+    finally { setIsLoggingOut(false); }
+  }
   const { data, loading, error, reload } = useFocusedResource<JobApplication[]>(`${API_BASE_URL}/api/JobApplications`);
   const applications = data ?? [];
   const hasLoaded = data !== null;
@@ -31,6 +43,13 @@ export default function HomeScreen() {
           <Text style={styles.brand} accessibilityRole="header">JobTrack</Text>
           <Text style={styles.subtitle}>Dina ansökningar. Samlade på ett ställe.</Text>
         </View>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 20 }}>
+          <Text style={{ color: theme.muted, flexShrink: 1 }}>{auth.user?.email}</Text>
+          <Pressable accessibilityRole="button" disabled={isLoggingOut} onPress={logout} style={{ padding: 12, minHeight: 44, backgroundColor: theme.soft, borderRadius: 10 }}>
+            <Text style={{ color: theme.ink, fontWeight: '600' }}>{isLoggingOut ? 'Loggar ut…' : 'Logga ut'}</Text>
+          </Pressable>
+        </View>
+        {!!logoutError && <FeedbackPanel kind="error" message={logoutError} />}
         <View style={styles.stats}>
           {stats.map(stat => <View key={stat.label} style={[styles.stat, { backgroundColor: theme.surface, borderColor: theme.line, borderTopColor: stat.color }]}>
             <Text style={{ color: theme.muted, fontSize: 13 }}>{stat.label}</Text>

@@ -1,11 +1,10 @@
+import { apiFetch, API_BASE_URL } from '@/services/auth-client';
 import { useCallback, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { File } from 'expo-file-system';
-import { fetch as expoFetch } from 'expo/fetch';
 import { readApiError } from '@/utils/api-error';
 
-const API_BASE_URL = process.env.EXPO_PUBLIC_API_BASE_URL;
 
 export function useApplicationImage() {
   const [savedUrl, setSavedUrl] = useState<string | null>(null);
@@ -62,7 +61,7 @@ export function useApplicationImage() {
     } else {
       form.append('file', new File(selected.uri));
     }
-    const response = await expoFetch(`${API_BASE_URL}/api/JobApplications/uploadimage`, {
+    const response = await apiFetch(`${API_BASE_URL}/api/JobApplications/uploadimage`, {
       method: 'POST', body: form,
     });
     if (!response.ok) throw new Error(await readApiError(response, 'Kunde inte ladda upp bilden.'));

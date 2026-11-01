@@ -1,3 +1,4 @@
+import { apiFetch } from '@/services/auth-client';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useRef, useState } from 'react';
 import { readApiError } from '@/utils/api-error';
@@ -16,7 +17,7 @@ export function useFocusedResource<T>(url: string) {
     setLoading(true);
     setError('');
     try {
-      const response = await fetch(url, { signal: controller.signal });
+      const response = await apiFetch(url, { signal: controller.signal });
       if (!response.ok) throw new Error(await readApiError(response, 'Kunde inte hämta uppgifterna. Försök igen.'));
       const result: T = await response.json();
       if (!controller.signal.aborted) setData(result);

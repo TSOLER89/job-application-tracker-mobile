@@ -5,7 +5,7 @@ import { useAuth } from '@/components/auth-provider';
 import { FeedbackPanel } from '@/components/feedback-panel';
 import { useJobTrackTheme } from '@/hooks/use-jobtrack-theme';
 
-export function WorkspaceHeader({ current }: { current: 'overview' | 'applications' }) {
+export function WorkspaceHeader({ current }: { current: 'overview' | 'applications' | 'statistics' }) {
   const theme = useJobTrackTheme();
   const auth = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -20,7 +20,6 @@ export function WorkspaceHeader({ current }: { current: 'overview' | 'applicatio
   }
   return <>
     <View style={styles.hero}>
-      <Text style={styles.eyebrow}>DIN KARRIÄR, ETT STEG I TAGET</Text>
       <Text style={styles.brand} accessibilityRole="header">JobTrack</Text>
       <Text style={styles.subtitle}>Dina ansökningar. Samlade på ett ställe.</Text>
     </View>
@@ -32,7 +31,7 @@ export function WorkspaceHeader({ current }: { current: 'overview' | 'applicatio
     </View>
     {!!error && <FeedbackPanel kind="error" message={error} />}
     <View style={[styles.navigation, { borderColor: theme.line }]}>
-      {([{ href: '/', label: 'Översikt', page: 'overview' }, { href: '/applications', label: 'Jobbansökningar', page: 'applications' }] as const).map(item =>
+      {([{ href: '/', label: 'Översikt', page: 'overview' }, { href: '/applications', label: 'Jobbansökningar', page: 'applications' }, { href: '/statistics', label: 'Statistik', page: 'statistics' }] as const).map(item =>
         <Link key={item.page} href={item.href} replace asChild>
           <Pressable accessibilityRole="link" accessibilityState={{ selected: current === item.page }} style={{ ...styles.link, backgroundColor: current === item.page ? theme.primary : theme.soft }}>
             <Text style={{ color: current === item.page ? '#ffffff' : theme.ink, fontWeight: '600', fontSize: 13 }}>{item.label}</Text>
@@ -43,12 +42,11 @@ export function WorkspaceHeader({ current }: { current: 'overview' | 'applicatio
 }
 
 const styles = StyleSheet.create({
-  hero: { backgroundColor: '#172554', borderBottomWidth: 4, borderBottomColor: '#2563eb', borderRadius: 16, padding: 24, marginBottom: 20 },
-  eyebrow: { color: '#bfdbfe', fontSize: 10, fontWeight: '700', letterSpacing: 1.2, lineHeight: 16 },
-  brand: { fontSize: 36, lineHeight: 44, fontWeight: '700', color: '#ffffff', marginTop: 8 },
-  subtitle: { color: '#dbeafe', fontSize: 15, lineHeight: 23, marginTop: 8 },
-  account: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 12, marginBottom: 20 },
+  hero: { backgroundColor: '#172554', borderBottomWidth: 3, borderBottomColor: '#2563eb', borderRadius: 14, padding: 16, marginBottom: 12 },
+  brand: { fontSize: 27, lineHeight: 32, fontWeight: '700', color: '#ffffff' },
+  subtitle: { color: '#dbeafe', fontSize: 12, lineHeight: 18, marginTop: 4 },
+  account: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 8, marginBottom: 12 },
   logout: { padding: 12, minHeight: 44, borderRadius: 10 },
-  navigation: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, borderBottomWidth: 1, paddingBottom: 16, marginBottom: 24 },
-  link: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 10 },
+  navigation: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, borderBottomWidth: 1, paddingBottom: 12, marginBottom: 20 },
+  link: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 10, paddingVertical: 12, borderRadius: 10 },
 });

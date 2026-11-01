@@ -1,5 +1,4 @@
 import { StyleSheet, Text, View } from 'react-native';
-import type { ReactNode } from 'react';
 import { useJobTrackTheme } from '@/hooks/use-jobtrack-theme';
 import { applicationStatistics, type StatisticsApplication } from '@/utils/application-statistics';
 
@@ -11,8 +10,8 @@ const metrics = [
   { label: 'Avslag', status: 'Avslag', color: '#dc2626' },
 ];
 
-export function ApplicationStatistics({ applications, loading, unavailable, children }: {
-  applications: readonly StatisticsApplication[]; loading: boolean; unavailable: boolean; children?: ReactNode;
+export function ApplicationStatistics({ applications, loading, unavailable }: {
+  applications: readonly StatisticsApplication[]; loading: boolean; unavailable: boolean;
 }) {
   const theme = useJobTrackTheme();
   const stats = applicationStatistics(applications);
@@ -34,7 +33,6 @@ export function ApplicationStatistics({ applications, loading, unavailable, chil
           <Text style={{ color: theme.muted, fontSize: 11 }}>{card.label === 'Totalt' ? 'Registrerade jobb' : 'Nuvarande status'}</Text>
         </View>)}
       </View>
-      {children}
       <View style={[styles.panel, { backgroundColor: theme.surface, borderColor: theme.line }]}>
         <Text accessibilityRole="header" style={[styles.chartHeading, { color: theme.ink }]}>Ansökningar över tid</Text>
         <Text style={[styles.note, { color: theme.muted }]}>Ansökningsdatum · senaste sex månaderna</Text>

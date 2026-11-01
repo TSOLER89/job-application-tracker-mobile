@@ -1,11 +1,11 @@
-import { Link } from 'expo-router';
 import { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '@/components/auth-provider';
 import { FeedbackPanel } from '@/components/feedback-panel';
 import { useJobTrackTheme } from '@/hooks/use-jobtrack-theme';
+import { AppGlyph } from '@/components/app-glyph';
 
-export function WorkspaceHeader({ current }: { current: 'overview' | 'applications' | 'statistics' }) {
+export function WorkspaceHeader() {
   const theme = useJobTrackTheme();
   const auth = useAuth();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -19,36 +19,34 @@ export function WorkspaceHeader({ current }: { current: 'overview' | 'applicatio
     finally { setIsLoggingOut(false); }
   }
   return <>
-    <View style={styles.hero}>
+    <View style={[styles.hero, { borderColor: theme.line }]}>
       <View style={styles.brandRow}>
-        <Text style={styles.brand} accessibilityRole="header">JobTrack</Text>
-        <Pressable accessibilityRole="button" disabled={isLoggingOut} onPress={logout} style={styles.logout}>
-          <Text style={styles.logoutText}>{isLoggingOut ? 'Loggar ut…' : 'Logga ut'}</Text>
+        <View style={styles.brandGroup}>
+          <View style={styles.brandMark}><AppGlyph name="applications" color="#ffffff" size={21} /></View>
+          <Text style={[styles.brand, { color: theme.ink }]} accessibilityRole="header">JobTrack</Text>
+        </View>
+        <Pressable accessibilityRole="button" disabled={isLoggingOut} onPress={logout} style={[styles.logout, { borderColor: theme.line, backgroundColor: theme.surface }]}>
+          <Text style={[styles.logoutText, { color: theme.muted }]}>{isLoggingOut ? 'Loggar ut…' : 'Logga ut'}</Text>
         </Pressable>
       </View>
-      <Text style={styles.subtitle}>Dina ansökningar. Samlade på ett ställe.</Text>
-      <Text style={styles.account}>Inloggad som {auth.user?.email}</Text>
+      <View style={styles.identity}>
+        <View style={[styles.avatar, { backgroundColor: theme.soft }]}><Text style={{ color: theme.accent, fontSize: 11, fontWeight: '700' }}>{auth.user?.email.charAt(0).toUpperCase()}</Text></View>
+        <Text style={[styles.account, { color: theme.muted }]}>Inloggad som {auth.user?.email}</Text>
+      </View>
     </View>
     {!!error && <FeedbackPanel kind="error" message={error} />}
-    <View style={[styles.navigation, { borderColor: theme.line }]}>
-      {([{ href: '/', label: 'Översikt', page: 'overview' }, { href: '/applications', label: 'Jobbansökningar', page: 'applications' }, { href: '/statistics', label: 'Statistik', page: 'statistics' }] as const).map(item =>
-        <Link key={item.page} href={item.href} replace asChild>
-          <Pressable accessibilityRole="link" accessibilityState={{ selected: current === item.page }} style={{ ...styles.link, backgroundColor: current === item.page ? theme.primary : theme.soft }}>
-            <Text style={{ color: current === item.page ? '#ffffff' : theme.ink, fontWeight: '600', fontSize: 13 }}>{item.label}</Text>
-          </Pressable>
-        </Link>)}
-    </View>
   </>;
 }
 
 const styles = StyleSheet.create({
-  hero: { backgroundColor: '#172554', borderBottomWidth: 3, borderBottomColor: '#2563eb', borderRadius: 14, padding: 16, marginBottom: 12 },
-  brand: { fontSize: 27, lineHeight: 32, fontWeight: '700', color: '#ffffff' },
+  hero: { borderBottomWidth: 1, paddingBottom: 16, marginBottom: 24 },
+  brand: { fontSize: 24, lineHeight: 31, fontWeight: '700', letterSpacing: -0.8 },
+  brandGroup: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  brandMark: { width: 38, height: 38, borderRadius: 12, backgroundColor: '#9a4b2f', alignItems: 'center', justifyContent: 'center' },
   brandRow: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', justifyContent: 'space-between', gap: 10 },
-  subtitle: { color: '#dbeafe', fontSize: 12, lineHeight: 18, marginTop: 4 },
-  account: { color: '#bfdbfe', fontSize: 11, lineHeight: 17, marginTop: 10 },
-  logout: { paddingHorizontal: 12, paddingVertical: 10, minHeight: 44, justifyContent: 'center', borderRadius: 10, backgroundColor: '#24366a', borderWidth: 1, borderColor: '#93b4e7' },
-  logoutText: { color: '#ffffff', fontSize: 13, fontWeight: '600' },
-  navigation: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, borderBottomWidth: 1, paddingBottom: 12, marginBottom: 20 },
-  link: { minHeight: 44, justifyContent: 'center', paddingHorizontal: 10, paddingVertical: 12, borderRadius: 10 },
+  identity: { flexDirection: 'row', alignItems: 'center', gap: 7, marginTop: 10 },
+  avatar: { width: 24, height: 24, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
+  account: { fontSize: 11, lineHeight: 17, flexShrink: 1 },
+  logout: { paddingHorizontal: 12, paddingVertical: 10, minHeight: 44, justifyContent: 'center', borderRadius: 11, borderWidth: 1 },
+  logoutText: { fontSize: 12, fontWeight: '600' },
 });

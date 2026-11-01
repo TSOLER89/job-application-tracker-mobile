@@ -57,6 +57,10 @@ export default function NewApplicationScreen() {
       setError("Ange giltiga planeringsdatum som YYYY-MM-DD, eller lämna fälten tomma.");
       return;
     }
+    if (status !== "Intresserad" && dateApplied && followUpDate && followUpDate < dateApplied) {
+      setError("Uppföljningsdatum får inte ligga före ansökningsdatumet.");
+      return;
+    }
     // Send the POST request to create a new job application
     savingRef.current = true;
     setIsSaving(true);

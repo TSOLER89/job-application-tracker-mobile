@@ -118,6 +118,10 @@ export default function EditApplicationScreen() {
       setError("Ange giltiga planeringsdatum som YYYY-MM-DD, eller lämna fälten tomma.");
       return;
     }
+    if (status !== "Intresserad" && dateApplied && followUpDate && followUpDate < dateApplied) {
+      setError("Uppföljningsdatum får inte ligga före ansökningsdatumet.");
+      return;
+    }
     savingRef.current = true;
     setIsSaving(true);
     setError("");

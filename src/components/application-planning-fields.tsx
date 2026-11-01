@@ -16,5 +16,6 @@ export function ApplicationPlanningFields({ deadline, followUp, onDeadlineChange
       accessibilityLabel="Uppföljningsdatum, YYYY-MM-DD" value={followUp} onChangeText={onFollowUpChange}
       editable={!disabled} maxLength={10} autoCorrect={false} autoCapitalize="none" />
     <Text style={styles.text}>Valfria datum för din planering. Töm fältet för att ta bort ett datum.</Text>
+    <Text style={styles.text}>Uppföljning görs tidigast på ansökningsdatumet och kan ligga efter sista ansökningsdagen.</Text>
   </>;
 }

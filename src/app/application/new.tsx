@@ -6,6 +6,8 @@ import { useSuccessFeedback } from "@/components/feedback-provider";
 import { readApiError } from "@/utils/api-error";
 import { useApplicationStyles } from "@/hooks/use-application-styles";
 import { FeedbackPanel } from "@/components/feedback-panel";
+import { ApplicationPlanningFields } from '@/components/application-planning-fields';
+import { isValidPlanningDate } from '@/utils/planning-date';
 
 import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
@@ -29,6 +31,8 @@ export default function NewApplicationScreen() {
   const [location, setLocation] = useState("");
   const [status, setStatus] = useState("Ansökt");
   const [dateApplied, setDateApplied] = useState("");
+  const [applicationDeadline, setApplicationDeadline] = useState("");
+  const [followUpDate, setFollowUpDate] = useState("");
   const [dateError, setDateError] = useState("");
   const [error, setError] = useState("");
   const [notes, setNotes] = useState("");
@@ -49,6 +53,10 @@ export default function NewApplicationScreen() {
       return;
     }
 
+    if (!isValidPlanningDate(applicationDeadline) || !isValidPlanningDate(followUpDate)) {
+      setError("Ange giltiga planeringsdatum som YYYY-MM-DD, eller lämna fälten tomma.");
+      return;
+    }
     // Send the POST request to create a new job application
     savingRef.current = true;
     setIsSaving(true);
@@ -66,6 +74,8 @@ export default function NewApplicationScreen() {
           location: location.trim(),
           status,
           dateApplied: status === "Intresserad" ? null : dateApplied || null,
+          applicationDeadline: applicationDeadline || null,
+          followUpDate: followUpDate || null,
 
           notes: notes.trim(),
           imageUrl: uploadImageUrl,
@@ -195,6 +205,7 @@ export default function NewApplicationScreen() {
               </>
             )}
 
+            <ApplicationPlanningFields deadline={applicationDeadline} followUp={followUpDate} onDeadlineChange={setApplicationDeadline} onFollowUpChange={setFollowUpDate} disabled={isSaving} />
             <Text style={styles.label}>Anteckningar</Text>
 
             <TextInput

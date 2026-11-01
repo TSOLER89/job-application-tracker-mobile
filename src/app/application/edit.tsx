@@ -6,6 +6,8 @@ import { useSuccessFeedback } from "@/components/feedback-provider";
 import { readApiError } from "@/utils/api-error";
 import { useApplicationStyles } from "@/hooks/use-application-styles";
 import { FeedbackPanel } from "@/components/feedback-panel";
+import { ApplicationPlanningFields } from '@/components/application-planning-fields';
+import { isValidPlanningDate } from '@/utils/planning-date';
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import {
@@ -27,6 +29,8 @@ type JobApplication = {
   location: string;
   status: string;
   dateApplied: string | null;
+  applicationDeadline: string | null;
+  followUpDate: string | null;
   notes: string | null;
   imageUrl: string | null;
 };
@@ -46,6 +50,8 @@ export default function EditApplicationScreen() {
   const [location, setLocation] = useState("");
   const [status, setStatus] = useState("Ansökt");
   const [dateApplied, setDateApplied] = useState("");
+  const [applicationDeadline, setApplicationDeadline] = useState("");
+  const [followUpDate, setFollowUpDate] = useState("");
   const [notes, setNotes] = useState("");
 
   const [loading, setLoading] = useState(true);
@@ -78,6 +84,8 @@ export default function EditApplicationScreen() {
         setLocation(selectedApplication.location);
         setStatus(selectedApplication.status);
         setDateApplied(selectedApplication.dateApplied ?? "");
+        setApplicationDeadline(selectedApplication.applicationDeadline ?? "");
+        setFollowUpDate(selectedApplication.followUpDate ?? "");
         setNotes(selectedApplication.notes ?? "");
         resetImage(selectedApplication.imageUrl);
 
@@ -106,6 +114,10 @@ export default function EditApplicationScreen() {
       return;
     }
 
+    if (!isValidPlanningDate(applicationDeadline) || !isValidPlanningDate(followUpDate)) {
+      setError("Ange giltiga planeringsdatum som YYYY-MM-DD, eller lämna fälten tomma.");
+      return;
+    }
     savingRef.current = true;
     setIsSaving(true);
     setError("");
@@ -125,6 +137,8 @@ export default function EditApplicationScreen() {
             location: location.trim(),
             status,
             dateApplied: status === "Intresserad" ? null : dateApplied || null,
+            applicationDeadline: applicationDeadline || null,
+            followUpDate: followUpDate || null,
             notes: notes.trim(),
             imageUrl,
           }),
@@ -221,6 +235,7 @@ export default function EditApplicationScreen() {
                   </>
                 )}
 
+                <ApplicationPlanningFields deadline={applicationDeadline} followUp={followUpDate} onDeadlineChange={setApplicationDeadline} onFollowUpChange={setFollowUpDate} disabled={isSaving} />
                 <Text style={styles.label}>Anteckningar</Text>
 
                 <TextInput

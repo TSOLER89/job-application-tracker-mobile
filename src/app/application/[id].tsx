@@ -23,6 +23,8 @@ type JobApplication = {
   location: string;
   status: string;
   dateApplied: string | null;
+  applicationDeadline: string | null;
+  followUpDate: string | null;
   notes: string | null;
   imageUrl: string | null;
 };
@@ -79,6 +81,8 @@ export default function ApplicationDetailsScreen() {
               <Image source={authenticatedImageSource(imageUrl)} style={styles.image} />
             )}
 
+            {application.applicationDeadline && <View style={styles.detail}><Text style={styles.label}>Sista ansökningsdag</Text><Text style={styles.value}>{application.applicationDeadline}</Text></View>}
+            {application.followUpDate && <View style={styles.detail}><Text style={styles.label}>Uppföljningsdatum</Text><Text style={styles.value}>{application.followUpDate}</Text></View>}
             <View style={styles.detail}>
               <Text style={styles.label}>Plats</Text>
 

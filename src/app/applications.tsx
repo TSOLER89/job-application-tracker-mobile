@@ -8,7 +8,7 @@ import { useFocusedResource } from '@/hooks/use-focused-resource';
 import { useJobTrackTheme } from '@/hooks/use-jobtrack-theme';
 import { API_BASE_URL } from '@/services/auth-client';
 
-type JobApplication = { id: number; company: string; position: string; location: string; status: string };
+type JobApplication = { id: number; company: string; position: string; location: string; status: string; applicationDeadline: string | null; followUpDate: string | null };
 
 export default function ApplicationsScreen() {
   const router = useRouter();
@@ -38,6 +38,8 @@ export default function ApplicationsScreen() {
               <StatusBadge status={application.status} />
             </View>
             <Text style={[styles.position, { color: theme.muted }]}>{application.position}</Text>
+            {application.applicationDeadline && <Text style={[styles.position, { color: theme.muted }]}>Sista ansökningsdag: {application.applicationDeadline}</Text>}
+            {application.followUpDate && <Text style={[styles.position, { color: theme.muted }]}>Uppföljning: {application.followUpDate}</Text>}
             <View style={[styles.cardFooter, { borderColor: theme.line }]}>
               <Text style={[styles.location, { color: theme.muted }]}>{application.location}</Text>
               <Text style={{ color: theme.ink, fontSize: 13, fontWeight: '600' }}>Visa detaljer →</Text>

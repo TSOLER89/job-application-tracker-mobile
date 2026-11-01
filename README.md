@@ -168,6 +168,14 @@ Bilden laddas först upp till backend och därefter sparas bildens URL tillsamma
 
 ## Gränssnitt och återkoppling
 
+Första gången visas en välkomstsida med **Skapa konto** och **Logga in**. Efter inloggning visas bara kontots egna ansökningar och bilder. **Logga ut** finns i översikten och avslutar den aktuella sessionen.
+
+På iOS och Android sparas sessionstoken i **Expo SecureStore**, inte lösenordet. En giltig session återställs när appen öppnas igen och gäller i högst 30 dagar. Skyddade sidor kräver inloggning även när de öppnas via en direktlänk. Bilder som tillhör API:t hämtas med samma inloggning.
+
+Backend behöver den nya kontomigrationen (`dotnet ef database update`). Äldre ansökningar bevaras utan ägare tills ett konto har skapats och en lokal operatör kopplar dem enligt backendens README. De tilldelas aldrig automatiskt till den första registreringen.
+
+Välj ett nytt lösenord för ditt JobTrack-konto. Registreringen kopplar inte automatiskt Gmail eller skolans Outlook; mejlverifiering, lösenordsåterställning och mejlimport kommer i nästa etapper.
+
 Appen använder samma blå färgpalett och statusfärger som webben. Mobilens bakgrund, formulär och texter följer telefonens ljusa eller mörka läge.
 
 - Statistik visas med `—` innan data har hämtats, i stället för missvisande nollor.

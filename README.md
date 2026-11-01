@@ -224,6 +224,8 @@ node --experimental-strip-types --test tests/application-statistics.test.mjs
 
 ## Relaterade projekt
 
+**Mejlkonton** öppnas via länken i sidhuvudet och kräver inloggning. Samma Gmail-kopplingar som i webbappen visas och kan kopplas från efter bekräftelse. Börja Google-anslutningen i datorns webbapp enligt API-repositoryts `docs/GMAIL_SETUP.md`. Detta delsteg importerar ännu inga mejl och ansluter inte Outlook.
+
 Applikationen består av tre delar:
 
 - Webb: https://github.com/TSOLER89/job-application-tracker
